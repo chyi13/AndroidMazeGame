@@ -8,6 +8,7 @@ import android.os.SystemClock;
 
 import com.android.cy.androidmazegame.Objects.BasicObject;
 import com.android.cy.androidmazegame.Objects.Cube;
+import com.android.cy.androidmazegame.Objects.Plane;
 
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
@@ -18,7 +19,7 @@ import javax.microedition.khronos.opengles.GL10;
 public class GameRenderer implements GLSurfaceView.Renderer{
 
     private BasicObject object;
-
+    private BasicObject plane;
     /** Store the projection matrix. This is used to project the scene onto a 2D viewport. */
     private final float[] mProjectionMatrix = new float[16];
 
@@ -34,8 +35,20 @@ public class GameRenderer implements GLSurfaceView.Renderer{
      */
     private float[] mModelMatrix = new float[16];
 
-    /** Allocate storage for the final combined matrix. This will be passed into the shader program. */
-    private float[] mMVPMatrix = new float[16];
+    /**
+     * Stores a copy of the model matrix specifically for the light position.
+     */
+    private float[] mLightModelMatrix = new float[16];
+
+    /** Used to hold a light centered on the origin in model space. We need a 4th coordinate so we can get translations to work when
+     *  we multiply this by our transformation matrices. */
+    private final float[] mLightPosInModelSpace = new float[] {0.0f, 0.0f, 0.0f, 1.0f};
+
+    /** Used to hold the current position of the light in world space (after transformation via model matrix). */
+    private final float[] mLightPosInWorldSpace = new float[4];
+
+    /** Used to hold the transformed position of the light in eye space (after transformation via modelview matrix) */
+    private final float[] mLightPosInEyeSpace = new float[4];
 
     private final Context mContextHandle;
 
@@ -44,7 +57,7 @@ public class GameRenderer implements GLSurfaceView.Renderer{
     @Override
     public void onSurfaceCreated(GL10 gl, EGLConfig config) {
         // Set the background clear color to gray.
-        GLES20.glClearColor(0.5f, 0.5f, 0.5f, 0.5f);
+        GLES20.glClearColor(0.0f, 0.0f, 0.0f, 0.5f);
 
         // Use culling to remove back faces.
         GLES20.glEnable(GLES20.GL_CULL_FACE);
@@ -52,10 +65,16 @@ public class GameRenderer implements GLSurfaceView.Renderer{
         // Enable depth testing
         GLES20.glEnable(GLES20.GL_DEPTH_TEST);
 
+        // Culling back
+   //     GLES20.glEnable(GLES20.GL_BACK);
+
+        // Front face
+   //    GLES20.glFrontFace(GLES20.GL_CCW);
+
         // Position the eye behind the origin.
         final float eyeX = 0.0f;
         final float eyeY = 0.0f;
-        final float eyeZ = 1.5f;
+        final float eyeZ = 6.0f;
 
         // We are looking toward the distance
         final float lookX = 0.0f;
@@ -75,6 +94,7 @@ public class GameRenderer implements GLSurfaceView.Renderer{
         //
 //        object = new Triangle(mContextHandle);
         object = new Cube(mContextHandle);
+        plane = new Plane(mContextHandle, 500.f, 500.f);
     }
 
     @Override
@@ -90,7 +110,7 @@ public class GameRenderer implements GLSurfaceView.Renderer{
         final float bottom = -1.0f;
         final float top = 1.0f;
         final float near = 1.0f;
-        final float far = 10.0f;
+        final float far = 1000.0f;
 
         Matrix.frustumM(mProjectionMatrix, 0, left, right, bottom, top, near, far);
     }
@@ -100,15 +120,29 @@ public class GameRenderer implements GLSurfaceView.Renderer{
 
         GLES20.glClear(GLES20.GL_DEPTH_BUFFER_BIT | GLES20.GL_COLOR_BUFFER_BIT);
 
+        // Calculate position of the light. Rotate and then push into the distance.
+        Matrix.setIdentityM(mLightModelMatrix, 0);
+        Matrix.translateM(mLightModelMatrix, 0, 0.0f, 0.0f, -5.0f);
         // Do a complete rotation every 10 seconds.
         long time = SystemClock.uptimeMillis() % 10000L;
         float angleInDegrees = (360.0f / 10000.0f) * ((int) time);
 
+        //     Matrix.rotateM(mModelMatrix, 0, angleInDegrees, 0.f, 1.f, 0.f);
+        Matrix.rotateM(mLightModelMatrix, 0, angleInDegrees, 0.0f, 1.0f, 0.0f);
+        Matrix.translateM(mLightModelMatrix, 0, 0.0f, 0.0f, 2.0f);
+
+        Matrix.multiplyMV(mLightPosInWorldSpace, 0, mLightModelMatrix, 0, mLightPosInModelSpace, 0);
+        Matrix.multiplyMV(mLightPosInEyeSpace, 0, mViewMatrix, 0, mLightPosInWorldSpace, 0);
+
+
         // Draw the triangle facing straight on.
         Matrix.setIdentityM(mModelMatrix, 0);
-    //    Matrix.rotateM(mModelMatrix, 0, angleInDegrees, 0.0f, 0.0f, 1.0f);
+        Matrix.translateM(mModelMatrix, 0, 0.0f, 0.0f, 2.0f);
+        object.draw(mViewMatrix, mProjectionMatrix, mModelMatrix, mLightPosInEyeSpace);
 
-        object.draw(mViewMatrix, mProjectionMatrix, mModelMatrix);
+        Matrix.setIdentityM(mModelMatrix, 0);
+        Matrix.translateM(mModelMatrix, 0, 0.0f, -8.0f, 0.0f);
+        plane.draw(mViewMatrix, mProjectionMatrix, mModelMatrix, mLightPosInEyeSpace);
     }
 
     public static int loadShader(int type, String shaderCode){

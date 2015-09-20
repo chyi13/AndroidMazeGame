@@ -3,7 +3,6 @@ package com.android.cy.androidmazegame.Objects;
 import android.content.Context;
 import android.opengl.GLES20;
 import android.opengl.Matrix;
-import android.os.SystemClock;
 
 import com.android.cy.androidmazegame.GameRenderer;
 import com.android.cy.androidmazegame.R;
@@ -178,52 +177,82 @@ public class Cube extends BasicObject {
                     0.0f, -1.0f, 0.0f,
                     0.0f, -1.0f, 0.0f
             };
+    final float[] cubeTextureCoordinateData =
+            {
+                    // Front face
+                    0.0f, 0.0f,
+                    0.0f, 1.0f,
+                    1.0f, 0.0f,
+                    0.0f, 1.0f,
+                    1.0f, 1.0f,
+                    1.0f, 0.0f,
 
-    /**
-     * Stores a copy of the model matrix specifically for the light position.
-     */
-    private float[] mLightModelMatrix = new float[16];
+                    // Right face
+                    0.0f, 0.0f,
+                    0.0f, 1.0f,
+                    1.0f, 0.0f,
+                    0.0f, 1.0f,
+                    1.0f, 1.0f,
+                    1.0f, 0.0f,
 
-    /** Used to hold a light centered on the origin in model space. We need a 4th coordinate so we can get translations to work when
-     *  we multiply this by our transformation matrices. */
-    private final float[] mLightPosInModelSpace = new float[] {0.0f, 0.0f, 0.0f, 1.0f};
+                    // Back face
+                    0.0f, 0.0f,
+                    0.0f, 1.0f,
+                    1.0f, 0.0f,
+                    0.0f, 1.0f,
+                    1.0f, 1.0f,
+                    1.0f, 0.0f,
 
-    /** Used to hold the current position of the light in world space (after transformation via model matrix). */
-    private final float[] mLightPosInWorldSpace = new float[4];
+                    // Left face
+                    0.0f, 0.0f,
+                    0.0f, 1.0f,
+                    1.0f, 0.0f,
+                    0.0f, 1.0f,
+                    1.0f, 1.0f,
+                    1.0f, 0.0f,
 
-    /** Used to hold the transformed position of the light in eye space (after transformation via modelview matrix) */
-    private final float[] mLightPosInEyeSpace = new float[4];
+                    // Top face
+                    0.0f, 0.0f,
+                    0.0f, 1.0f,
+                    1.0f, 0.0f,
+                    0.0f, 1.0f,
+                    1.0f, 1.0f,
+                    1.0f, 0.0f,
 
+                    // Bottom face
+                    0.0f, 0.0f,
+                    0.0f, 1.0f,
+                    1.0f, 0.0f,
+                    0.0f, 1.0f,
+                    1.0f, 1.0f,
+                    1.0f, 0.0f
+            };
     /** Allocate storage for the final combined matrix. This will be passed into the shader program. */
     private float[] mMVPMatrix = new float[16];
-
-    /** Size of the position data in elements. */
-    private final int mPositionDataSize = 3;
-
-    /** Size of the color data in elements. */
-    private final int mColorDataSize = 4;
-
-    /** Size of the normal data in elements. */
-    private final int mNormalDataSize = 3;
 
     public Cube(Context context) {
         super(context);
 
         // Initialize the buffers.
-        vertexBuffer = ByteBuffer.allocateDirect(cubePositionData.length * mBytesPerFloat)
+        vertexBuffer = ByteBuffer.allocateDirect(cubePositionData.length * BYTES_PER_FLOAT)
                 .order(ByteOrder.nativeOrder()).asFloatBuffer();
         vertexBuffer.put(cubePositionData).position(0);
 
-        colorBuffer = ByteBuffer.allocateDirect(cubeColorData.length * mBytesPerFloat)
+        colorBuffer = ByteBuffer.allocateDirect(cubeColorData.length * BYTES_PER_FLOAT)
                 .order(ByteOrder.nativeOrder()).asFloatBuffer();
         colorBuffer.put(cubeColorData).position(0);
 
-        normalBuffer = ByteBuffer.allocateDirect(cubeNormalData.length * mBytesPerFloat)
+        normalBuffer = ByteBuffer.allocateDirect(cubeNormalData.length * BYTES_PER_FLOAT)
                 .order(ByteOrder.nativeOrder()).asFloatBuffer();
         normalBuffer.put(cubeNormalData).position(0);
 
+        textureBuffer = ByteBuffer.allocateDirect(cubeTextureCoordinateData.length * BYTES_PER_FLOAT)
+                .order(ByteOrder.nativeOrder()).asFloatBuffer();
+        textureBuffer.put(cubeTextureCoordinateData).position(0);
         //
         generateShader();
+
+        mTextureDataHandle = RawResourceReader.loadTexture(context, R.drawable.box_texture);
     }
 
     @Override
@@ -240,6 +269,7 @@ public class Cube extends BasicObject {
             GLES20.glBindAttribLocation(programHandle, 0, "a_Position");
             GLES20.glBindAttribLocation(programHandle, 1, "a_Color");
             GLES20.glBindAttribLocation(programHandle, 2, "a_Normal");
+            GLES20.glBindAttribLocation(programHandle, 3, "a_TexCoordinate");
         }
         GLES20.glLinkProgram(programHandle);                  // create OpenGL program executables
 
@@ -248,55 +278,50 @@ public class Cube extends BasicObject {
         mMVPMatrixHandle = GLES20.glGetUniformLocation(programHandle, "u_MVPMatrix");
         mMVMatrixHandle = GLES20.glGetUniformLocation(programHandle, "u_MVMatrix");
         mLightPosHandle = GLES20.glGetUniformLocation(programHandle, "u_LightPos");
+        mTextureUniformHandle = GLES20.glGetUniformLocation(programHandle, "u_Texture");
         mPositionHandle = GLES20.glGetAttribLocation(programHandle, "a_Position");
         mColorHandle = GLES20.glGetAttribLocation(programHandle, "a_Color");
         mNormalHandle = GLES20.glGetAttribLocation(programHandle, "a_Normal");
+        mTextureCoordinateHandle = GLES20.glGetAttribLocation(programHandle, "a_TexCoordinate");
 
         // Tell OpenGL to use this program when rendering.
         GLES20.glUseProgram(programHandle);
     }
 
     @Override
-    public void draw(float[] mViewMatrix, float[] mProjectionMatrix, float[] mModelMatrix) {
+    public void draw(float[] mViewMatrix, float[] mProjectionMatrix, float[] mModelMatrix, float[] mLightPosInEyeSpace) {
 
+        // Set the active texture unit to texture unit 0.
+        GLES20.glActiveTexture(GLES20.GL_TEXTURE0);
 
-        // Calculate position of the light. Rotate and then push into the distance.
-        Matrix.setIdentityM(mLightModelMatrix, 0);
-        Matrix.translateM(mLightModelMatrix, 0, 0.0f, 0.0f, -5.0f);
-        // Do a complete rotation every 10 seconds.
-        long time = SystemClock.uptimeMillis() % 10000L;
-        float angleInDegrees = (360.0f / 10000.0f) * ((int) time);
+        // Bind the texture to this unit.
+        GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, mTextureDataHandle);
 
-   //     Matrix.rotateM(mModelMatrix, 0, angleInDegrees, 0.f, 1.f, 0.f);
-        Matrix.rotateM(mLightModelMatrix, 0, angleInDegrees, 0.0f, 1.0f, 0.0f);
-        Matrix.translateM(mLightModelMatrix, 0, 0.0f, 0.0f, 2.0f);
-
-        Matrix.multiplyMV(mLightPosInWorldSpace, 0, mLightModelMatrix, 0, mLightPosInModelSpace, 0);
-        Matrix.multiplyMV(mLightPosInEyeSpace, 0, mViewMatrix, 0, mLightPosInWorldSpace, 0);
-
-        // draw cube
-        Matrix.setIdentityM(mModelMatrix, 0);
-        Matrix.translateM(mModelMatrix, 0, 4.0f, 0.0f, -7.0f);
+        // Tell the texture uniform sampler to use this texture in the shader by binding to texture unit 0.
+        GLES20.glUniform1i(mTextureUniformHandle, 0);
 
         // Pass in the position information
         vertexBuffer.position(0);
         GLES20.glVertexAttribPointer(mPositionHandle, mPositionDataSize, GLES20.GL_FLOAT, false,
                 0, vertexBuffer);
-
         GLES20.glEnableVertexAttribArray(mPositionHandle);
+
+        // Pass in the texture coordinate information
+        textureBuffer.position(0);
+        GLES20.glVertexAttribPointer(mTextureCoordinateHandle, mTextureCoordinateDataSize, GLES20.GL_FLOAT, false,
+                0, textureBuffer);
+        GLES20.glEnableVertexAttribArray(mTextureCoordinateHandle);
 
         // Pass in the color information
         colorBuffer.position(0);
         GLES20.glVertexAttribPointer(mColorHandle, mColorDataSize, GLES20.GL_FLOAT, false,
                 0, colorBuffer);
-
         GLES20.glEnableVertexAttribArray(mColorHandle);
 
         // Pass in the normal information
         normalBuffer.position(0);
         GLES20.glVertexAttribPointer(mNormalHandle, mNormalDataSize, GLES20.GL_FLOAT, false,
                 0, normalBuffer);
-
         GLES20.glEnableVertexAttribArray(mNormalHandle);
 
         // This multiplies the view matrix by the model matrix, and stores the result in the MVP matrix

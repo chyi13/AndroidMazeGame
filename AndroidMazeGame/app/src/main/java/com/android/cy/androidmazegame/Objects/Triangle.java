@@ -60,7 +60,7 @@ public class Triangle extends BasicObject{
     private final FloatBuffer mTriangle3Vertices;
 
     /** How many elements per vertex. */
-    private final int mStrideBytes = 7 * mBytesPerFloat;
+    private final int mStrideBytes = 7 * BYTES_PER_FLOAT;
 
     /** Offset of the position data. */
     private final int mPositionOffset = 0;
@@ -81,11 +81,11 @@ public class Triangle extends BasicObject{
         super(context);
 
         // Initialize the buffers.
-        mTriangle1Vertices = ByteBuffer.allocateDirect(triangle1VerticesData.length * mBytesPerFloat)
+        mTriangle1Vertices = ByteBuffer.allocateDirect(triangle1VerticesData.length * BYTES_PER_FLOAT)
                 .order(ByteOrder.nativeOrder()).asFloatBuffer();
-        mTriangle2Vertices = ByteBuffer.allocateDirect(triangle2VerticesData.length * mBytesPerFloat)
+        mTriangle2Vertices = ByteBuffer.allocateDirect(triangle2VerticesData.length * BYTES_PER_FLOAT)
                 .order(ByteOrder.nativeOrder()).asFloatBuffer();
-        mTriangle3Vertices = ByteBuffer.allocateDirect(triangle3VerticesData.length * mBytesPerFloat)
+        mTriangle3Vertices = ByteBuffer.allocateDirect(triangle3VerticesData.length * BYTES_PER_FLOAT)
                 .order(ByteOrder.nativeOrder()).asFloatBuffer();
 
         mTriangle1Vertices.put(triangle1VerticesData).position(0);
@@ -124,7 +124,7 @@ public class Triangle extends BasicObject{
     }
 
     @Override
-    public void draw(float[] mViewMatrix, float[] mProjectionMatrix, float[] mModelMatrix) {
+    public void draw(float[] mViewMatrix, float[] mProjectionMatrix, float[] mModelMatrix, float[] mLightPosInEyeSpace) {
         mTriangle1Vertices.position(mPositionOffset);
 
         // Pass in the position information
