@@ -6,48 +6,58 @@ import android.opengl.Matrix;
 
 import com.android.cy.androidmazegame.R;
 import com.android.cy.androidmazegame.SceneManager.RawResourceReader;
+import com.android.cy.androidmazegame.Utils.Vector3D;
 
 /**
- * Created by Administrator on 2015/9/20.
+ * Created by Administrator on 2015/9/22.
  */
-public class Plane extends BasicObject {
+public class Wall extends BasicObject{
+
+    private final static float WALL_HEIGHT = 10.f;
+
+    float width, height;
 
     /** Allocate storage for the final combined matrix. This will be passed into the shader program. */
     private float[] mMVPMatrix = new float[16];
 
-    public Plane(Context context) {
+    public Wall(Context context){
         super(context);
+    }
+
+    public Wall(Context context, float w, float h) {
+        super(context);
+        width = w;
+        height = h;
 
         // Initialize the data: pos, color, normal, index and texture
-        generatePlaneData(10.f, 10.f);
+        generatePlaneData(w, h);
 
         // Initialize buffers
         initializeBuffers();
 
-        mTextureDataHandle = RawResourceReader.loadTexture(context, R.drawable.floor);
+        mTextureDataHandle = RawResourceReader.loadTexture(context, R.drawable.wall);
         GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_WRAP_S, GLES20.GL_REPEAT);
         GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_WRAP_T, GLES20.GL_REPEAT);
         GLES20.glGenerateMipmap(GLES20.GL_TEXTURE_2D);
     }
 
-    public Plane(Context context, float hWidth, float hHeight) {
+    public Wall(Context context, Vector3D pos, float a, float h) {
         super(context);
 
-        // Initialize the data: pos, color, normal, index and texture
-        generatePlaneData(hWidth, hHeight);
+        position = pos;
+        angle = a;
+        height = h;
 
-        // Initialize buffers
-        initializeBuffers();
+    }
 
-        mTextureDataHandle = RawResourceReader.loadTexture(context, R.drawable.floor);
-        GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_WRAP_S, GLES20.GL_REPEAT);
-        GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_WRAP_T, GLES20.GL_REPEAT);
-        GLES20.glGenerateMipmap(GLES20.GL_TEXTURE_2D);
+    public void setPosition(Vector3D pos, float a) {
+        position = pos;
+        angle = a;
     }
 
     @Override
     public void setShaderHandles(int ph) {
-        programHandle = ph;
+       programHandle = ph;
 
         // Set program handles. These will later be used to pass in values to the program.
         // Set program handles for cube drawing.
@@ -60,7 +70,6 @@ public class Plane extends BasicObject {
         mNormalHandle = GLES20.glGetAttribLocation(programHandle, "a_Normal");
         mTextureCoordinateHandle = GLES20.glGetAttribLocation(programHandle, "a_TexCoordinate");
     }
-
     @Override
     public void draw(float[] mViewMatrix, float[] mProjectionMatrix, float[] mModelMatrix, float[] mLightPosInEyeSpace) {
         GLES20.glUseProgram(programHandle);
@@ -116,29 +125,22 @@ public class Plane extends BasicObject {
         GLES20.glUniform3f(mLightPosHandle, mLightPosInEyeSpace[0], mLightPosInEyeSpace[1], mLightPosInEyeSpace[2]);
 
         // indices
-   //     GLES20.glDrawElements(GLES20.GL_LINE_LOOP, 2 * 3, GLES20.GL_UNSIGNED_SHORT, indexBuffer);
+        //     GLES20.glDrawElements(GLES20.GL_LINE_LOOP, 2 * 3, GLES20.GL_UNSIGNED_SHORT, indexBuffer);
         // Draw the square
         GLES20.glDrawArrays(GLES20.GL_TRIANGLES, 0, 6);
     }
 
-    private void generatePlaneData(float hWidth, float hHeight) {
-
+    private void generateWallData(Vector3D bl, Vector3D br) {
 
         // X Y Z
         positionData = new float[]
-//                {
-//                        -hWidth, 0.0f, -hHeight,
-//                         hWidth, 0.0f, -hHeight,
-//                         hWidth, 0.0f,  hHeight,
-//                        -hWidth, 0.0f,  hHeight
-//                };
                 {
-                        -hWidth, 0.0f,  hHeight,
-                         hWidth, 0.0f, -hHeight,
-                        -hWidth, 0.0f, -hHeight,
-                        -hWidth, 0.0f,  hHeight,
-                         hWidth, 0.0f,  hHeight,
-                         hWidth, 0.0f, -hHeight
+                        bl.x, bl.y + WALL_HEIGHT, bl.z,      // top left     0
+                        br.x, br.y, br.z,               // bot right    1
+                        bl.x, bl.y, bl.z,               // bot left     2
+                        bl.x, bl.y + WALL_HEIGHT, bl.z,      // top left     3
+                        br.x, br.y + WALL_HEIGHT, br.z,      // top right    4
+                        br.x, br.y, br.z                // bot right    5
                 };
         colorData = new float[]
                 {
@@ -151,12 +153,12 @@ public class Plane extends BasicObject {
                 };
         normalData = new float[]
                 {
-                        0.0f, 1.0f, 0.0f,
-                        0.0f, 1.0f, 0.0f,
-                        0.0f, 1.0f, 0.0f,
-                        0.0f, 1.0f, 0.0f,
-                        0.0f, 1.0f, 0.0f,
-                        0.0f, 1.0f, 0.0f
+                        0.0f, 0.0f, 1.0f,
+                        0.0f, 0.0f, 1.0f,
+                        0.0f, 0.0f, 1.0f,
+                        0.0f, 0.0f, 1.0f,
+                        0.0f, 0.0f, 1.0f,
+                        0.0f, 0.0f, 1.0f
                 };
         indexData = new short[]
                 {
@@ -166,11 +168,57 @@ public class Plane extends BasicObject {
         textureData = new float[]
                 {
                         0.0f, 0.0f,
-                        20.0f, 20.0f,
-                        0.0f, 20.0f,
+                        1.0f, 1.0f,
+                        0.0f, 1.0f,
                         0.0f,  0.0f,
-                        20.0f,  0.0f,
-                        20.0f, 20.0f,
+                        1.0f,  0.0f,
+                        1.0f, 1.0f,
+                };
+    }
+
+    private void generatePlaneData(float hWidth, float hHeight) {
+
+        // X Y Z
+        positionData = new float[]
+                {
+                        -hWidth, hHeight, 0.0f,
+                        hWidth, -hHeight, 0.0f,
+                        -hWidth, -hHeight, 0.0f,
+                        -hWidth,  hHeight, 0.0f,
+                        hWidth,  hHeight, 0.0f,
+                        hWidth, -hHeight, 0.0f
+                };
+        colorData = new float[]
+                {
+                        0.5f, 0.5f, 0.5f, 1.0f,
+                        0.5f, 0.5f, 0.5f, 1.0f,
+                        0.5f, 0.5f, 0.5f, 1.0f,
+                        0.5f, 0.5f, 0.5f, 1.0f,
+                        0.5f, 0.5f, 0.5f, 1.0f,
+                        0.5f, 0.5f, 0.5f, 1.0f
+                };
+        normalData = new float[]
+                {
+                        0.0f, 0.0f, 1.0f,
+                        0.0f, 0.0f, 1.0f,
+                        0.0f, 0.0f, 1.0f,
+                        0.0f, 0.0f, 1.0f,
+                        0.0f, 0.0f, 1.0f,
+                        0.0f, 0.0f, 1.0f
+                };
+        indexData = new short[]
+                {
+                        0, 1, 2,
+                        0, 2, 3
+                };
+        textureData = new float[]
+                {
+                        0.0f, 0.0f,
+                        1.0f, 1.0f,
+                        0.0f, 1.0f,
+                        0.0f,  0.0f,
+                        1.0f,  0.0f,
+                        1.0f, 1.0f,
                 };
     }
 }

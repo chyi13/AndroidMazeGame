@@ -4,8 +4,9 @@ import android.content.Context;
 import android.opengl.GLES20;
 import android.opengl.Matrix;
 
-import com.android.cy.androidmazegame.GameRenderer;
 import com.android.cy.androidmazegame.R;
+import com.android.cy.androidmazegame.SceneManager.MazeMap;
+import com.android.cy.androidmazegame.SceneManager.RawResourceReader;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -249,29 +250,13 @@ public class Cube extends BasicObject {
         textureBuffer = ByteBuffer.allocateDirect(cubeTextureCoordinateData.length * BYTES_PER_FLOAT)
                 .order(ByteOrder.nativeOrder()).asFloatBuffer();
         textureBuffer.put(cubeTextureCoordinateData).position(0);
-        //
-        generateShader();
 
-        mTextureDataHandle = RawResourceReader.loadTexture(context, R.drawable.box_texture);
+        mTextureDataHandle = RawResourceReader.loadTexture(context, R.drawable.wall);
     }
 
     @Override
-    public void generateShader() {
-        //
-        int vertexShader = GameRenderer.loadShader(GLES20.GL_VERTEX_SHADER, RawResourceReader.readTextFileFromRawResource(contextHandle, R.raw.vertex_shader));
-        int fragmentShader = GameRenderer.loadShader(GLES20.GL_FRAGMENT_SHADER, RawResourceReader.readTextFileFromRawResource(contextHandle, R.raw.fragment_shader));
-
-        programHandle = GLES20.glCreateProgram();             // create empty OpenGL Program
-        if (programHandle != 0) {
-            GLES20.glAttachShader(programHandle, vertexShader);   // add the vertex shader to program
-            GLES20.glAttachShader(programHandle, fragmentShader); // add the fragment shader to program
-
-            GLES20.glBindAttribLocation(programHandle, 0, "a_Position");
-            GLES20.glBindAttribLocation(programHandle, 1, "a_Color");
-            GLES20.glBindAttribLocation(programHandle, 2, "a_Normal");
-            GLES20.glBindAttribLocation(programHandle, 3, "a_TexCoordinate");
-        }
-        GLES20.glLinkProgram(programHandle);                  // create OpenGL program executables
+    public void setShaderHandles(int ph) {
+        programHandle = ph;
 
         // Set program handles. These will later be used to pass in values to the program.
         // Set program handles for cube drawing.
@@ -283,9 +268,6 @@ public class Cube extends BasicObject {
         mColorHandle = GLES20.glGetAttribLocation(programHandle, "a_Color");
         mNormalHandle = GLES20.glGetAttribLocation(programHandle, "a_Normal");
         mTextureCoordinateHandle = GLES20.glGetAttribLocation(programHandle, "a_TexCoordinate");
-
-        // Tell OpenGL to use this program when rendering.
-        GLES20.glUseProgram(programHandle);
     }
 
     @Override
@@ -323,6 +305,9 @@ public class Cube extends BasicObject {
         GLES20.glVertexAttribPointer(mNormalHandle, mNormalDataSize, GLES20.GL_FLOAT, false,
                 0, normalBuffer);
         GLES20.glEnableVertexAttribArray(mNormalHandle);
+
+        // scale
+        Matrix.scaleM(mModelMatrix, 0, MazeMap.MAZE_UNIT_WIDTH/2, MazeMap.MAZE_UNIT_WIDTH/2, MazeMap.MAZE_UNIT_WIDTH/2);
 
         // This multiplies the view matrix by the model matrix, and stores the result in the MVP matrix
         // (which currently contains model * view).

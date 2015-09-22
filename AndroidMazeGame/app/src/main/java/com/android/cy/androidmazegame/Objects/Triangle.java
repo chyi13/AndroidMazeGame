@@ -4,9 +4,6 @@ import android.content.Context;
 import android.opengl.GLES20;
 import android.opengl.Matrix;
 
-import com.android.cy.androidmazegame.GameRenderer;
-import com.android.cy.androidmazegame.R;
-
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
@@ -91,36 +88,17 @@ public class Triangle extends BasicObject{
         mTriangle1Vertices.put(triangle1VerticesData).position(0);
         mTriangle2Vertices.put(triangle2VerticesData).position(0);
         mTriangle3Vertices.put(triangle3VerticesData).position(0);
-
-        // generate shader program
-        generateShader();
-
     }
 
     @Override
-    public void generateShader() {
-        //
-        int vertexShader = GameRenderer.loadShader(GLES20.GL_VERTEX_SHADER, RawResourceReader.readTextFileFromRawResource(contextHandle, R.raw.vertex_shader));
-        int fragmentShader = GameRenderer.loadShader(GLES20.GL_FRAGMENT_SHADER, RawResourceReader.readTextFileFromRawResource(contextHandle, R.raw.fragment_shader));
+    public void setShaderHandles(int ph) {
 
-        programHandle = GLES20.glCreateProgram();             // create empty OpenGL Program
-        if (programHandle != 0) {
-            GLES20.glAttachShader(programHandle, vertexShader);   // add the vertex shader to program
-            GLES20.glAttachShader(programHandle, fragmentShader); // add the fragment shader to program
-
-            GLES20.glBindAttribLocation(programHandle, 0, "a_Position");
-            GLES20.glBindAttribLocation(programHandle, 1, "a_Color");
-            GLES20.glBindAttribLocation(programHandle, 2, "a_Normal");
-        }
-        GLES20.glLinkProgram(programHandle);                  // create OpenGL program executables
+        programHandle = ph;
 
         // Set program handles. These will later be used to pass in values to the program.
         mMVPMatrixHandle = GLES20.glGetUniformLocation(programHandle, "u_MVPMatrix");
         mPositionHandle = GLES20.glGetAttribLocation(programHandle, "a_Position");
         mColorHandle = GLES20.glGetAttribLocation(programHandle, "a_Color");
-
-        // Tell OpenGL to use this program when rendering.
-        GLES20.glUseProgram(programHandle);
     }
 
     @Override

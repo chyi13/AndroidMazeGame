@@ -9,6 +9,9 @@ import android.os.SystemClock;
 import com.android.cy.androidmazegame.Objects.BasicObject;
 import com.android.cy.androidmazegame.Objects.Cube;
 import com.android.cy.androidmazegame.Objects.Plane;
+import com.android.cy.androidmazegame.Objects.Wall;
+import com.android.cy.androidmazegame.SceneManager.SceneManager;
+import com.android.cy.androidmazegame.Utils.Vector3D;
 
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
@@ -20,6 +23,9 @@ public class GameRenderer implements GLSurfaceView.Renderer{
 
     private BasicObject object;
     private BasicObject plane;
+    private BasicObject wall;
+
+
     /** Store the projection matrix. This is used to project the scene onto a 2D viewport. */
     private final float[] mProjectionMatrix = new float[16];
 
@@ -50,7 +56,11 @@ public class GameRenderer implements GLSurfaceView.Renderer{
     /** Used to hold the transformed position of the light in eye space (after transformation via modelview matrix) */
     private final float[] mLightPosInEyeSpace = new float[4];
 
+    /** Context */
     private final Context mContextHandle;
+
+    /** SceneManger */
+    private SceneManager sceneManager;
 
     public GameRenderer(Context context) { mContextHandle = context;}
 
@@ -66,19 +76,19 @@ public class GameRenderer implements GLSurfaceView.Renderer{
         GLES20.glEnable(GLES20.GL_DEPTH_TEST);
 
         // Culling back
-   //     GLES20.glEnable(GLES20.GL_BACK);
+        GLES20.glCullFace(GLES20.GL_BACK);
 
         // Front face
-   //    GLES20.glFrontFace(GLES20.GL_CCW);
+        GLES20.glFrontFace(GLES20.GL_CCW);
 
         // Position the eye behind the origin.
-        final float eyeX = 0.0f;
-        final float eyeY = 0.0f;
-        final float eyeZ = 6.0f;
+        final float eyeX = 20.0f;
+        final float eyeY = 10.0f;
+        final float eyeZ = 50.0f;
 
         // We are looking toward the distance
         final float lookX = 0.0f;
-        final float lookY = 0.0f;
+        final float lookY = 5.0f;
         final float lookZ = -5.0f;
 
         // Set our up vector. This is where our head would be pointing were we holding the camera.
@@ -95,6 +105,15 @@ public class GameRenderer implements GLSurfaceView.Renderer{
 //        object = new Triangle(mContextHandle);
         object = new Cube(mContextHandle);
         plane = new Plane(mContextHandle, 500.f, 500.f);
+        wall = new Wall(mContextHandle, 10.f, 20.f);
+
+        sceneManager = new SceneManager(mContextHandle);
+        sceneManager.setViewMatrix(mViewMatrix);
+        sceneManager.readMazeMap();
+    //    sceneManager.addObject(wall);
+        sceneManager.addObject(plane);
+    //    wall.setPosition(new Vector3D(0.0f, 0.0f, -10.f));
+        plane.setPosition(new Vector3D(0.0f, -8.0f, 0.0f));
     }
 
     @Override
@@ -113,6 +132,9 @@ public class GameRenderer implements GLSurfaceView.Renderer{
         final float far = 1000.0f;
 
         Matrix.frustumM(mProjectionMatrix, 0, left, right, bottom, top, near, far);
+
+        // Set Projection matrix for scenemanager
+        sceneManager.setProjectionMatrix(mProjectionMatrix);
     }
 
     @Override
@@ -134,15 +156,8 @@ public class GameRenderer implements GLSurfaceView.Renderer{
         Matrix.multiplyMV(mLightPosInWorldSpace, 0, mLightModelMatrix, 0, mLightPosInModelSpace, 0);
         Matrix.multiplyMV(mLightPosInEyeSpace, 0, mViewMatrix, 0, mLightPosInWorldSpace, 0);
 
-
-        // Draw the triangle facing straight on.
-        Matrix.setIdentityM(mModelMatrix, 0);
-        Matrix.translateM(mModelMatrix, 0, 0.0f, 0.0f, 2.0f);
-        object.draw(mViewMatrix, mProjectionMatrix, mModelMatrix, mLightPosInEyeSpace);
-
-        Matrix.setIdentityM(mModelMatrix, 0);
-        Matrix.translateM(mModelMatrix, 0, 0.0f, -8.0f, 0.0f);
-        plane.draw(mViewMatrix, mProjectionMatrix, mModelMatrix, mLightPosInEyeSpace);
+        sceneManager.setLightPosInEyeSpace(mLightPosInEyeSpace);
+        sceneManager.render();
     }
 
     public static int loadShader(int type, String shaderCode){

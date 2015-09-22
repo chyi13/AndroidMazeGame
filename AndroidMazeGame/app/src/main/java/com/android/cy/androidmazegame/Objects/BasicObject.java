@@ -2,6 +2,8 @@ package com.android.cy.androidmazegame.Objects;
 
 import android.content.Context;
 
+import com.android.cy.androidmazegame.Utils.Vector3D;
+
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
@@ -72,12 +74,27 @@ public abstract class BasicObject {
     /** Size of the texture coordinate data in elements. */
     public final int mTextureCoordinateDataSize = 2;
 
+    /** Position of the obejct*/
+    protected Vector3D position;
+
+    /** Angle for wall rotate */
+    protected float angle  = 0;
+
+    /** set get position */
+    public void setPosition(Vector3D pos) { position = pos; }
+    public Vector3D getPosition() { return position; }
+    public float getX() { return position.x; }
+    public float getY() { return position.y; }
+    public float getZ() { return position.z; }
+    public float getAngle() { return angle; }
+
     public BasicObject(Context context) {
         contextHandle = context;
+        position = new Vector3D(0, 0, 0);
     }
 
     // shader
-    public abstract void generateShader();
+    public abstract void setShaderHandles(int ph);
 
     // draw
     public abstract void draw(float[] mViewMatrix, float[] mProjectionMatrix, float[] mModelMatrix, float[] mLightPosInEyeSpace);
