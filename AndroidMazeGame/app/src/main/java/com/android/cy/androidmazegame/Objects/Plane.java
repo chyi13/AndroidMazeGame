@@ -5,7 +5,7 @@ import android.opengl.GLES20;
 import android.opengl.Matrix;
 
 import com.android.cy.androidmazegame.R;
-import com.android.cy.androidmazegame.SceneManager.RawResourceReader;
+import com.android.cy.androidmazegame.Scene.RawResourceReader;
 
 /**
  * Created by Administrator on 2015/9/20.
@@ -25,9 +25,9 @@ public class Plane extends BasicObject {
         initializeBuffers();
 
         mTextureDataHandle = RawResourceReader.loadTexture(context, R.drawable.floor);
-        GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_WRAP_S, GLES20.GL_REPEAT);
-        GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_WRAP_T, GLES20.GL_REPEAT);
-        GLES20.glGenerateMipmap(GLES20.GL_TEXTURE_2D);
+//        GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_WRAP_S, GLES20.GL_REPEAT);
+//        GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_WRAP_T, GLES20.GL_REPEAT);
+//        GLES20.glGenerateMipmap(GLES20.GL_TEXTURE_2D);
     }
 
     public Plane(Context context, float hWidth, float hHeight) {
@@ -63,8 +63,6 @@ public class Plane extends BasicObject {
 
     @Override
     public void draw(float[] mViewMatrix, float[] mProjectionMatrix, float[] mModelMatrix, float[] mLightPosInEyeSpace) {
-        GLES20.glUseProgram(programHandle);
-
         // Set the active texture unit to texture unit 0.
         GLES20.glActiveTexture(GLES20.GL_TEXTURE0);
 
@@ -166,11 +164,11 @@ public class Plane extends BasicObject {
         textureData = new float[]
                 {
                         0.0f, 0.0f,
-                        20.0f, 20.0f,
-                        0.0f, 20.0f,
+                        4.0f, 4.0f,
+                        0.0f, 4.0f,
                         0.0f,  0.0f,
-                        20.0f,  0.0f,
-                        20.0f, 20.0f,
+                        4.0f,  0.0f,
+                        4.0f, 4.0f,
                 };
     }
 }

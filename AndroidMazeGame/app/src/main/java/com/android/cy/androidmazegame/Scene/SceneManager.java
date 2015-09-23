@@ -1,4 +1,4 @@
-package com.android.cy.androidmazegame.SceneManager;
+package com.android.cy.androidmazegame.Scene;
 
 import android.content.Context;
 import android.opengl.GLES20;
@@ -71,9 +71,6 @@ public class SceneManager {
             Matrix.rotateM(mModelMatrix, 0, obj.getAngle(), 0, 1.0f, 0);
             obj.draw(mViewMatrix, mProjectionMatrix, mModelMatrix, mLightPosInEyeSpace);
         }
-
-        // Draw maze walls
-
     }
 
     public void addObject(BasicObject obj) {

@@ -1,4 +1,4 @@
-package com.android.cy.androidmazegame.SceneManager;
+package com.android.cy.androidmazegame.Scene;
 
 import android.content.Context;
 import android.graphics.Bitmap;

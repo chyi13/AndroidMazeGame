@@ -5,8 +5,8 @@ import android.opengl.GLES20;
 import android.opengl.Matrix;
 
 import com.android.cy.androidmazegame.R;
-import com.android.cy.androidmazegame.SceneManager.MazeMap;
-import com.android.cy.androidmazegame.SceneManager.RawResourceReader;
+import com.android.cy.androidmazegame.Scene.MazeMap;
+import com.android.cy.androidmazegame.Scene.RawResourceReader;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -272,7 +272,6 @@ public class Cube extends BasicObject {
 
     @Override
     public void draw(float[] mViewMatrix, float[] mProjectionMatrix, float[] mModelMatrix, float[] mLightPosInEyeSpace) {
-
         // Set the active texture unit to texture unit 0.
         GLES20.glActiveTexture(GLES20.GL_TEXTURE0);
 
@@ -307,6 +306,7 @@ public class Cube extends BasicObject {
         GLES20.glEnableVertexAttribArray(mNormalHandle);
 
         // scale
+//        Matrix.setIdentityM(mModelMatrix, 0);
         Matrix.scaleM(mModelMatrix, 0, MazeMap.MAZE_UNIT_WIDTH/2, MazeMap.MAZE_UNIT_WIDTH/2, MazeMap.MAZE_UNIT_WIDTH/2);
 
         // This multiplies the view matrix by the model matrix, and stores the result in the MVP matrix

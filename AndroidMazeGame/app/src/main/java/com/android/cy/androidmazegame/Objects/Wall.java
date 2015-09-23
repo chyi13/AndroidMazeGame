@@ -5,7 +5,7 @@ import android.opengl.GLES20;
 import android.opengl.Matrix;
 
 import com.android.cy.androidmazegame.R;
-import com.android.cy.androidmazegame.SceneManager.RawResourceReader;
+import com.android.cy.androidmazegame.Scene.RawResourceReader;
 import com.android.cy.androidmazegame.Utils.Vector3D;
 
 /**

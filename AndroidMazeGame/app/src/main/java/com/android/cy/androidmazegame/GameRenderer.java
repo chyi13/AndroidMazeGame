@@ -4,13 +4,11 @@ import android.content.Context;
 import android.opengl.GLES20;
 import android.opengl.GLSurfaceView;
 import android.opengl.Matrix;
-import android.os.SystemClock;
 
 import com.android.cy.androidmazegame.Objects.BasicObject;
 import com.android.cy.androidmazegame.Objects.Cube;
 import com.android.cy.androidmazegame.Objects.Plane;
-import com.android.cy.androidmazegame.Objects.Wall;
-import com.android.cy.androidmazegame.SceneManager.SceneManager;
+import com.android.cy.androidmazegame.Scene.SceneManager;
 import com.android.cy.androidmazegame.Utils.Vector3D;
 
 import javax.microedition.khronos.egl.EGLConfig;
@@ -24,7 +22,7 @@ public class GameRenderer implements GLSurfaceView.Renderer{
     private BasicObject object;
     private BasicObject plane;
     private BasicObject wall;
-
+    private BasicObject roof;
 
     /** Store the projection matrix. This is used to project the scene onto a 2D viewport. */
     private final float[] mProjectionMatrix = new float[16];
@@ -64,13 +62,28 @@ public class GameRenderer implements GLSurfaceView.Renderer{
 
     public GameRenderer(Context context) { mContextHandle = context;}
 
+    // Position the eye behind the origin.
+    private float eyeX = -2.5f;
+    private float eyeY = 5.0f;
+    private float eyeZ = -2.5f;
+
+    // We are looking toward the distance
+    private float lookX = -2.5f;
+    private float lookY = 5.0f;
+    private float lookZ = -5.0f;
+
+    // Set our up vector. This is where our head would be pointing were we holding the camera.
+    final float upX = 0.0f;
+    final float upY = 1.0f;
+    final float upZ = 0.0f;
+
     @Override
     public void onSurfaceCreated(GL10 gl, EGLConfig config) {
         // Set the background clear color to gray.
         GLES20.glClearColor(0.0f, 0.0f, 0.0f, 0.5f);
 
         // Use culling to remove back faces.
-        GLES20.glEnable(GLES20.GL_CULL_FACE);
+   //     GLES20.glEnable(GLES20.GL_CULL_FACE);
 
         // Enable depth testing
         GLES20.glEnable(GLES20.GL_DEPTH_TEST);
@@ -81,21 +94,6 @@ public class GameRenderer implements GLSurfaceView.Renderer{
         // Front face
         GLES20.glFrontFace(GLES20.GL_CCW);
 
-        // Position the eye behind the origin.
-        final float eyeX = 20.0f;
-        final float eyeY = 10.0f;
-        final float eyeZ = 50.0f;
-
-        // We are looking toward the distance
-        final float lookX = 0.0f;
-        final float lookY = 5.0f;
-        final float lookZ = -5.0f;
-
-        // Set our up vector. This is where our head would be pointing were we holding the camera.
-        final float upX = 0.0f;
-        final float upY = 1.0f;
-        final float upZ = 0.0f;
-
         // Set the view matrix. This matrix can be said to represent the camera position.
         // NOTE: In OpenGL 1, a ModelView matrix is used, which is a combination of a model and
         // view matrix. In OpenGL 2, we can keep track of these matrices separately if we choose.
@@ -104,16 +102,16 @@ public class GameRenderer implements GLSurfaceView.Renderer{
         //
 //        object = new Triangle(mContextHandle);
         object = new Cube(mContextHandle);
-        plane = new Plane(mContextHandle, 500.f, 500.f);
-        wall = new Wall(mContextHandle, 10.f, 20.f);
+        plane = new Plane(mContextHandle, 110.f, 110.f);
+        roof = new Plane(mContextHandle, 110.f, 110.f);
 
         sceneManager = new SceneManager(mContextHandle);
         sceneManager.setViewMatrix(mViewMatrix);
         sceneManager.readMazeMap();
-    //    sceneManager.addObject(wall);
         sceneManager.addObject(plane);
-    //    wall.setPosition(new Vector3D(0.0f, 0.0f, -10.f));
-        plane.setPosition(new Vector3D(0.0f, -8.0f, 0.0f));
+        plane.setPosition(new Vector3D(0.0f, -10.0f, 0.0f));
+        sceneManager.addObject(roof);
+        roof.setPosition(new Vector3D(0.0f, 10.0f, 0.0f));
     }
 
     @Override
@@ -145,12 +143,7 @@ public class GameRenderer implements GLSurfaceView.Renderer{
         // Calculate position of the light. Rotate and then push into the distance.
         Matrix.setIdentityM(mLightModelMatrix, 0);
         Matrix.translateM(mLightModelMatrix, 0, 0.0f, 0.0f, -5.0f);
-        // Do a complete rotation every 10 seconds.
-        long time = SystemClock.uptimeMillis() % 10000L;
-        float angleInDegrees = (360.0f / 10000.0f) * ((int) time);
 
-        //     Matrix.rotateM(mModelMatrix, 0, angleInDegrees, 0.f, 1.f, 0.f);
-        Matrix.rotateM(mLightModelMatrix, 0, angleInDegrees, 0.0f, 1.0f, 0.0f);
         Matrix.translateM(mLightModelMatrix, 0, 0.0f, 0.0f, 2.0f);
 
         Matrix.multiplyMV(mLightPosInWorldSpace, 0, mLightModelMatrix, 0, mLightPosInModelSpace, 0);
@@ -159,6 +152,22 @@ public class GameRenderer implements GLSurfaceView.Renderer{
         sceneManager.setLightPosInEyeSpace(mLightPosInEyeSpace);
         sceneManager.render();
     }
+
+    private float theta = 0, phi = 0;
+
+    public void updateCamera(float x, float y) {
+        theta += x / 300;
+        phi += y / 300;
+
+        Vector3D target = new Vector3D();
+        target.x = (float) (Math.cos(theta) * Math.sin(phi));
+        target.y = (float) Math.cos(-phi);
+        target.z = (float) (Math.sin(theta) * Math.sin(phi));
+        Matrix.setLookAtM(mViewMatrix, 0, eyeX, eyeY, eyeZ,
+                                            eyeX + target.x, eyeY + target.y, eyeZ + target.z,
+                                            0, 1, 0);
+    }
+
 
     public static int loadShader(int type, String shaderCode){
 

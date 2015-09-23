@@ -1,10 +1,9 @@
-package com.android.cy.androidmazegame.SceneManager;
+package com.android.cy.androidmazegame.Scene;
 
 import android.content.Context;
 import android.util.Log;
 
 import com.android.cy.androidmazegame.Objects.Cube;
-import com.android.cy.androidmazegame.Objects.Wall;
 import com.android.cy.androidmazegame.Utils.Vector3D;
 
 import java.io.BufferedReader;
@@ -23,22 +22,17 @@ public class MazeMap {
 
     private class MazeMapUnit {
         Vector3D position;
-        float angle;
-        public MazeMapUnit(Vector3D pos, float a) {
+        public MazeMapUnit(Vector3D pos) {
             position = pos;
-            angle = a;
         }
     }
 
     private Vector<MazeMapUnit> mazeMap;
-    private Vector<Wall> mazeMapObjects;
 
     private SceneManager sceneManager;
 
     public MazeMap(SceneManager sm) {
         mazeMap = new Vector<MazeMapUnit>();
-        mazeMapObjects = new Vector<Wall>();
-
         sceneManager = sm;
     }
 
@@ -60,9 +54,7 @@ public class MazeMap {
 
                     if (nextLine.charAt(j) == '#') {
                         Log.v("MazeMap", j * MAZE_UNIT_WIDTH + " " + i * MAZE_UNIT_WIDTH);
-                        MazeMapUnit tempUnit = new MazeMapUnit(
-                                new Vector3D( j * MAZE_UNIT_WIDTH, 0, i * MAZE_UNIT_WIDTH),
-                                0);
+                        MazeMapUnit tempUnit = new MazeMapUnit(new Vector3D( (j- 5.5f) * MAZE_UNIT_WIDTH, MAZE_UNIT_WIDTH / 2, (i - 5.5f) * MAZE_UNIT_WIDTH));
                         mazeMap.add(tempUnit);
                     }
                 }
