@@ -119,6 +119,11 @@ public class Plane extends BasicObject {
         GLES20.glDrawArrays(GLES20.GL_TRIANGLES, 0, 6);
     }
 
+    @Override
+    public void draw(float[] p) {
+
+    }
+
     private void generatePlaneData(float hWidth, float hHeight) {
 
 

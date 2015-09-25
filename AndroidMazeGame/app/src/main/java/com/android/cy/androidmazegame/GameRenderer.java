@@ -4,10 +4,12 @@ import android.content.Context;
 import android.opengl.GLES20;
 import android.opengl.GLSurfaceView;
 import android.opengl.Matrix;
+import android.util.Log;
 
 import com.android.cy.androidmazegame.Objects.BasicObject;
 import com.android.cy.androidmazegame.Objects.Cube;
 import com.android.cy.androidmazegame.Objects.Plane;
+import com.android.cy.androidmazegame.Scene.CharacterController;
 import com.android.cy.androidmazegame.Scene.SceneManager;
 import com.android.cy.androidmazegame.Utils.Vector3D;
 
@@ -24,15 +26,18 @@ public class GameRenderer implements GLSurfaceView.Renderer{
     private BasicObject wall;
     private BasicObject roof;
 
+    /** CharacterController */
+    private CharacterController characterController;
+
     /** Store the projection matrix. This is used to project the scene onto a 2D viewport. */
     private final float[] mProjectionMatrix = new float[16];
+    private final float[] mOrthoProjectionMatrix = new float[16];
 
     /**
      * Store the view matrix. This can be thought of as our camera. This matrix transforms world space to eye space;
      * it positions things relative to our eye.
      */
-    private final float[] mViewMatrix = new float[16];
-
+    private float[] mViewMatrix;
     /**
      * Store the model matrix. This matrix is used to move models from object space (where each model can be thought
      * of being located at the center of the universe) to world space.
@@ -62,21 +67,6 @@ public class GameRenderer implements GLSurfaceView.Renderer{
 
     public GameRenderer(Context context) { mContextHandle = context;}
 
-    // Position the eye behind the origin.
-    private float eyeX = -2.5f;
-    private float eyeY = 5.0f;
-    private float eyeZ = -2.5f;
-
-    // We are looking toward the distance
-    private float lookX = -2.5f;
-    private float lookY = 5.0f;
-    private float lookZ = -5.0f;
-
-    // Set our up vector. This is where our head would be pointing were we holding the camera.
-    final float upX = 0.0f;
-    final float upY = 1.0f;
-    final float upZ = 0.0f;
-
     @Override
     public void onSurfaceCreated(GL10 gl, EGLConfig config) {
         // Set the background clear color to gray.
@@ -94,13 +84,10 @@ public class GameRenderer implements GLSurfaceView.Renderer{
         // Front face
         GLES20.glFrontFace(GLES20.GL_CCW);
 
-        // Set the view matrix. This matrix can be said to represent the camera position.
-        // NOTE: In OpenGL 1, a ModelView matrix is used, which is a combination of a model and
-        // view matrix. In OpenGL 2, we can keep track of these matrices separately if we choose.
-        Matrix.setLookAtM(mViewMatrix, 0, eyeX, eyeY, eyeZ, lookX, lookY, lookZ, upX, upY, upZ);
+        // character controller
+        characterController = new CharacterController();
+        mViewMatrix = characterController.getViewMatrix();
 
-        //
-//        object = new Triangle(mContextHandle);
         object = new Cube(mContextHandle);
         plane = new Plane(mContextHandle, 110.f, 110.f);
         roof = new Plane(mContextHandle, 110.f, 110.f);
@@ -129,10 +116,12 @@ public class GameRenderer implements GLSurfaceView.Renderer{
         final float near = 1.0f;
         final float far = 1000.0f;
 
+        Log.v("GameRenderer", width + " " + height);
         Matrix.frustumM(mProjectionMatrix, 0, left, right, bottom, top, near, far);
-
+        Matrix.orthoM(mOrthoProjectionMatrix, 0, 0f, width, 0.0f, height, 0, 50);
         // Set Projection matrix for scenemanager
         sceneManager.setProjectionMatrix(mProjectionMatrix);
+        sceneManager.setGamePadProjectionMatrix(mOrthoProjectionMatrix);
     }
 
     @Override
@@ -163,9 +152,9 @@ public class GameRenderer implements GLSurfaceView.Renderer{
         target.x = (float) (Math.cos(theta) * Math.sin(phi));
         target.y = (float) Math.cos(-phi);
         target.z = (float) (Math.sin(theta) * Math.sin(phi));
-        Matrix.setLookAtM(mViewMatrix, 0, eyeX, eyeY, eyeZ,
-                                            eyeX + target.x, eyeY + target.y, eyeZ + target.z,
-                                            0, 1, 0);
+
+        characterController.updateTarget(target);
+        mViewMatrix = characterController.getViewMatrix();
     }
 
 

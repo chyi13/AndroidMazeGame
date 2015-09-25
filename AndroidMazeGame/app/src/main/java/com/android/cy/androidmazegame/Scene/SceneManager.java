@@ -6,6 +6,7 @@ import android.opengl.Matrix;
 
 import com.android.cy.androidmazegame.GameRenderer;
 import com.android.cy.androidmazegame.Objects.BasicObject;
+import com.android.cy.androidmazegame.Objects.GamePad;
 import com.android.cy.androidmazegame.R;
 
 import java.util.Vector;
@@ -17,6 +18,7 @@ public class SceneManager {
 
     private Context mContextHandle;
     private int mProgramHandle;
+    private int mGamePadProgramHandle;
 
     private MazeMap mazeMap;
     private Vector<BasicObject> mazeObjects;
@@ -26,6 +28,11 @@ public class SceneManager {
     private float[] mLightPosInEyeSpace;
     private float[] mModelMatrix = new float[16];
 
+    private GamePad gamePad;
+    private float[] mGamePadModelMatrix = new float[16];
+    private float[] mGamePadViewMatrix = new float[16];
+    private float[] mGamePadProjectionMatrix = new float[16];
+
     public SceneManager(Context context) {
         mContextHandle = context;
 
@@ -34,10 +41,15 @@ public class SceneManager {
 
         // shader
         mProgramHandle = generateShader();
+        mGamePadProgramHandle = generateGamePadShader();
 
         // scene map
         mazeMap = new MazeMap(this);
         mazeMap.readMazeMap(mContextHandle, R.raw.testmap);
+
+        // game pad
+        gamePad = new GamePad(mContextHandle);
+        gamePad.setShaderHandles(mGamePadProgramHandle);
     }
 
     public void setViewMatrix(float[] viewMatrix) {
@@ -46,6 +58,14 @@ public class SceneManager {
 
     public void setProjectionMatrix(float[] projectionMatrix) {
         this.mProjectionMatrix = projectionMatrix;
+    }
+
+    public void setGamePadProjectionMatrix(float[] projectionMatrix) {
+        this.mGamePadProjectionMatrix = projectionMatrix;
+    }
+
+    public void setGamePadViewMatrix(float[] viewMatrix) {
+        this.mGamePadViewMatrix = viewMatrix;
     }
 
     public void setLightPosInEyeSpace(float[] lightPosInEyeSpace) {
@@ -71,6 +91,10 @@ public class SceneManager {
             Matrix.rotateM(mModelMatrix, 0, obj.getAngle(), 0, 1.0f, 0);
             obj.draw(mViewMatrix, mProjectionMatrix, mModelMatrix, mLightPosInEyeSpace);
         }
+
+        // Render game pad
+        GLES20.glUseProgram(mGamePadProgramHandle);
+        gamePad.draw(mGamePadProjectionMatrix);
     }
 
     public void addObject(BasicObject obj) {
@@ -106,16 +130,22 @@ public class SceneManager {
         }
         GLES20.glLinkProgram(programHandle);                  // create OpenGL program executables
 
-        // Set program handles. These will later be used to pass in values to the program.
-        // Set program handles for cube drawing.
-        mMVPMatrixHandle = GLES20.glGetUniformLocation(programHandle, "u_MVPMatrix");
-        mMVMatrixHandle = GLES20.glGetUniformLocation(programHandle, "u_MVMatrix");
-        mLightPosHandle = GLES20.glGetUniformLocation(programHandle, "u_LightPos");
-        mTextureUniformHandle = GLES20.glGetUniformLocation(programHandle, "u_Texture");
-        mPositionHandle = GLES20.glGetAttribLocation(programHandle, "a_Position");
-        mColorHandle = GLES20.glGetAttribLocation(programHandle, "a_Color");
-        mNormalHandle = GLES20.glGetAttribLocation(programHandle, "a_Normal");
-        mTextureCoordinateHandle = GLES20.glGetAttribLocation(programHandle, "a_TexCoordinate");
+        return programHandle;
+    }
+
+    public int generateGamePadShader() {
+        //
+        int vertexShader = GameRenderer.loadShader(GLES20.GL_VERTEX_SHADER, RawResourceReader.readTextFileFromRawResource(mContextHandle, R.raw.gamepad_vertex_shader));
+        int fragmentShader = GameRenderer.loadShader(GLES20.GL_FRAGMENT_SHADER, RawResourceReader.readTextFileFromRawResource(mContextHandle, R.raw.gamepad_fragment_shader));
+
+        int programHandle = GLES20.glCreateProgram();             // create empty OpenGL Program
+        if (programHandle != 0) {
+            GLES20.glAttachShader(programHandle, vertexShader);   // add the vertex shader to program
+            GLES20.glAttachShader(programHandle, fragmentShader); // add the fragment shader to program
+
+            GLES20.glBindAttribLocation(programHandle, 0, "a_Position");
+        }
+        GLES20.glLinkProgram(programHandle);                  // create OpenGL program executables
 
         return programHandle;
     }

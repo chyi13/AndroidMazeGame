@@ -130,6 +130,11 @@ public class Wall extends BasicObject{
         GLES20.glDrawArrays(GLES20.GL_TRIANGLES, 0, 6);
     }
 
+    @Override
+    public void draw(float[] mMVPMatrix) {
+
+    }
+
     private void generateWallData(Vector3D bl, Vector3D br) {
 
         // X Y Z

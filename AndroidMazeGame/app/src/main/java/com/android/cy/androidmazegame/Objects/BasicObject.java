@@ -62,6 +62,9 @@ public abstract class BasicObject {
     /** This is a handle to our texture data. */
     public int mTextureDataHandle;
 
+    /** This is a handle to pass in the point size */
+    public int mPointThickness;
+
     /** Size of the position data in elements. */
     public final int mPositionDataSize = 3;
 
@@ -99,28 +102,38 @@ public abstract class BasicObject {
     // draw
     public abstract void draw(float[] mViewMatrix, float[] mProjectionMatrix, float[] mModelMatrix, float[] mLightPosInEyeSpace);
 
+    public abstract void draw(float[] p);
+
     public void initializeBuffers() {
         // Initialize the buffers.
-        vertexBuffer = ByteBuffer.allocateDirect(positionData.length * BYTES_PER_FLOAT)
-                .order(ByteOrder.nativeOrder()).asFloatBuffer();
-        vertexBuffer.put(positionData).position(0);
+        if (positionData != null) {
+            vertexBuffer = ByteBuffer.allocateDirect(positionData.length * BYTES_PER_FLOAT)
+                    .order(ByteOrder.nativeOrder()).asFloatBuffer();
+            vertexBuffer.put(positionData).position(0);
+        }
 
-        colorBuffer = ByteBuffer.allocateDirect(colorData.length * BYTES_PER_FLOAT)
-                .order(ByteOrder.nativeOrder()).asFloatBuffer();
-        colorBuffer.put(colorData).position(0);
+        if (colorData != null) {
+            colorBuffer = ByteBuffer.allocateDirect(colorData.length * BYTES_PER_FLOAT)
+                    .order(ByteOrder.nativeOrder()).asFloatBuffer();
+            colorBuffer.put(colorData).position(0);
+        }
 
-        normalBuffer = ByteBuffer.allocateDirect(normalData.length * BYTES_PER_FLOAT)
-                .order(ByteOrder.nativeOrder()).asFloatBuffer();
-        normalBuffer.put(normalData).position(0);
+        if(normalData != null) {
+            normalBuffer = ByteBuffer.allocateDirect(normalData.length * BYTES_PER_FLOAT)
+                    .order(ByteOrder.nativeOrder()).asFloatBuffer();
+            normalBuffer.put(normalData).position(0);
+        }
 
-        if (indexData.length != 0) {
+        if (indexData != null) {
             indexBuffer = ByteBuffer.allocateDirect(indexData.length * BYTES_PER_SHORT)
                     .order(ByteOrder.nativeOrder()).asShortBuffer();
             indexBuffer.put(indexData).position(0);
         }
 
-        textureBuffer = ByteBuffer.allocateDirect(textureData.length * BYTES_PER_FLOAT)
-                .order(ByteOrder.nativeOrder()).asFloatBuffer();
-        textureBuffer.put(textureData).position(0);
+        if (textureData != null) {
+            textureBuffer = ByteBuffer.allocateDirect(textureData.length * BYTES_PER_FLOAT)
+                    .order(ByteOrder.nativeOrder()).asFloatBuffer();
+            textureBuffer.put(textureData).position(0);
+        }
     }
 }

@@ -329,4 +329,9 @@ public class Cube extends BasicObject {
         // Draw the cube.
         GLES20.glDrawArrays(GLES20.GL_TRIANGLES, 0, 36);
     }
+
+    @Override
+    public void draw(float[] p) {
+
+    }
 }

@@ -2,6 +2,7 @@ package com.android.cy.androidmazegame;
 
 import android.content.Context;
 import android.opengl.GLSurfaceView;
+import android.util.AttributeSet;
 import android.view.MotionEvent;
 
 /**
@@ -16,6 +17,18 @@ public class GameSurfaceView extends GLSurfaceView {
 
     public GameSurfaceView(Context context) {
         super(context);
+
+        // Create an OpenGL ES 2.0 context
+        setEGLContextClientVersion(2);
+
+        mGameRenderer = new GameRenderer(context);
+
+        // Set the Renderer for drawing on the GLSurfaceView
+        setRenderer(mGameRenderer);
+    }
+
+    public GameSurfaceView(Context context, AttributeSet attributeSet) {
+        super(context, attributeSet);
 
         // Create an OpenGL ES 2.0 context
         setEGLContextClientVersion(2);
@@ -42,5 +55,9 @@ public class GameSurfaceView extends GLSurfaceView {
             }
         }
         return true;
+    }
+
+    public void onMoveUpdate(float x, float y) {
+        mGameRenderer.updateCamera(x, y);
     }
 }
