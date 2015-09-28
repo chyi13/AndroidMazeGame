@@ -25,4 +25,11 @@ public class Vector2D {
     public float[] toFloatArray() {
         return new float[]{x, y};
     }
+
+    public static boolean isInRect(Vector2D p, Vector2D c, float w, float h) {
+        if (Math.abs(p.x - c.x) < w && Math.abs(p.y - c.y) < h) {
+            return true;
+        } else
+            return false;
+    }
 }

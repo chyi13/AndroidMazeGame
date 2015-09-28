@@ -45,6 +45,29 @@ public class CharacterController {
         updateViewMatrix();
     }
 
+    public void move(int direction) {
+        switch (direction) {
+            // left
+            case 0:
+                Vector3D.add(eyePos, eyePos, new Vector3D(-1.f, 0.0f, 0.0f));
+                break;
+            // right
+            case 1:
+                Vector3D.add(eyePos, eyePos, new Vector3D(1.f, 0.0f, 0.0f));
+                break;
+            // up
+            case 2:
+                Vector3D.add(eyePos, eyePos, new Vector3D(0.f, 0.0f, 1.0f));
+                break;
+            // down
+            case 3:
+                Vector3D.add(eyePos, eyePos, new Vector3D(0.f, 0.0f, -1.0f));
+                break;
+            default:
+                break;
+        }
+    }
+
     private void updateViewMatrix() {
         Matrix.setLookAtM(mViewMatrix, 0, eyePos.x, eyePos.y, eyePos.z,
                 targetPos.x + eyePos.x, targetPos.y + eyePos.y, targetPos.z + eyePos.z,

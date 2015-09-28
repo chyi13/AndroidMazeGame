@@ -32,7 +32,12 @@ public class MainActivity extends Activity {
         gamePadView.setMoveCallback(new GamePadMoveCallback() {
             @Override
             public void onMove(float x, float y) {
-                mGameView.onMoveUpdate(x / 50, y / 50);
+                mGameView.onCameraUpdate(x / 50, y / 50);
+            }
+
+            @Override
+            public void onKeyDown(int direction) {
+                mGameView.onCharacterPosUpdate(direction);
             }
         });
 

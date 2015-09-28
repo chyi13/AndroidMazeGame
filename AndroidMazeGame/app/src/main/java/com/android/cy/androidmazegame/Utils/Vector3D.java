@@ -21,4 +21,10 @@ public class Vector3D {
     public float[] toFloatArray() {
         return new float[]{x, y, z};
     }
+
+    public static void add(Vector3D result, Vector3D a, Vector3D b) {
+        result.x = a.x + b.x;
+        result.y = a.y + b.y;
+        result.z = a.z + b.z;
+    }
 }

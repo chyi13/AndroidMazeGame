@@ -157,6 +157,9 @@ public class GameRenderer implements GLSurfaceView.Renderer{
         mViewMatrix = characterController.getViewMatrix();
     }
 
+    public void updateCharacterPos(int direction) {
+        characterController.move(direction);
+    }
 
     public static int loadShader(int type, String shaderCode){
 

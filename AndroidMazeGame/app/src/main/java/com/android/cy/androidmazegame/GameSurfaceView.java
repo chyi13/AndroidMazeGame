@@ -57,7 +57,9 @@ public class GameSurfaceView extends GLSurfaceView {
         return true;
     }
 
-    public void onMoveUpdate(float x, float y) {
+    public void onCameraUpdate(float x, float y) {
         mGameRenderer.updateCamera(x, y);
     }
+
+    public void onCharacterPosUpdate(int direction) { mGameRenderer.updateCharacterPos(direction);}
 }
