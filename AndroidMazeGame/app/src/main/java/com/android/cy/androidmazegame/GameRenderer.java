@@ -4,6 +4,7 @@ import android.content.Context;
 import android.opengl.GLES20;
 import android.opengl.GLSurfaceView;
 import android.opengl.Matrix;
+import android.os.SystemClock;
 import android.util.Log;
 
 import com.android.cy.androidmazegame.Objects.BasicObject;
@@ -65,6 +66,9 @@ public class GameRenderer implements GLSurfaceView.Renderer{
     /** SceneManger */
     private SceneManager sceneManager;
 
+    /** Render time */
+    private float startTime = 0.f;
+
     public GameRenderer(Context context) { mContextHandle = context;}
 
     @Override
@@ -96,9 +100,9 @@ public class GameRenderer implements GLSurfaceView.Renderer{
         sceneManager.setViewMatrix(mViewMatrix);
         sceneManager.readMazeMap();
         sceneManager.addObject(plane);
-        plane.setPosition(new Vector3D(0.0f, -10.0f, 0.0f));
+        plane.setPosition(new Vector3D(0.0f, -5.0f, 0.0f));
         sceneManager.addObject(roof);
-        roof.setPosition(new Vector3D(0.0f, 10.0f, 0.0f));
+        roof.setPosition(new Vector3D(0.0f, 5.0f, 0.0f));
     }
 
     @Override
@@ -114,7 +118,7 @@ public class GameRenderer implements GLSurfaceView.Renderer{
         final float bottom = -1.0f;
         final float top = 1.0f;
         final float near = 1.0f;
-        final float far = 1000.0f;
+        final float far = 100.0f;
 
         Log.v("GameRenderer", width + " " + height);
         Matrix.frustumM(mProjectionMatrix, 0, left, right, bottom, top, near, far);
@@ -126,6 +130,11 @@ public class GameRenderer implements GLSurfaceView.Renderer{
 
     @Override
     public void onDrawFrame(GL10 gl) {
+        float elapsedTime = SystemClock.elapsedRealtime() - startTime;
+        if (elapsedTime < 10f) {
+            return;
+        }
+        startTime = SystemClock.elapsedRealtime();
 
         GLES20.glClear(GLES20.GL_DEPTH_BUFFER_BIT | GLES20.GL_COLOR_BUFFER_BIT);
 
@@ -159,6 +168,7 @@ public class GameRenderer implements GLSurfaceView.Renderer{
 
     public void updateCharacterPos(int direction) {
         characterController.move(direction);
+        mViewMatrix = characterController.getViewMatrix();
     }
 
     public static int loadShader(int type, String shaderCode){

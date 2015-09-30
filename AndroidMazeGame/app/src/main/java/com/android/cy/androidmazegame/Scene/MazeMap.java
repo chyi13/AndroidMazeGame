@@ -54,7 +54,7 @@ public class MazeMap {
 
                     if (nextLine.charAt(j) == '#') {
                         Log.v("MazeMap", j * MAZE_UNIT_WIDTH + " " + i * MAZE_UNIT_WIDTH);
-                        MazeMapUnit tempUnit = new MazeMapUnit(new Vector3D( (j- 5.5f) * MAZE_UNIT_WIDTH, MAZE_UNIT_WIDTH / 2, (i - 5.5f) * MAZE_UNIT_WIDTH));
+                        MazeMapUnit tempUnit = new MazeMapUnit(new Vector3D( (j- 5.5f) * MAZE_UNIT_WIDTH, 0.0f, (i - 5.5f) * MAZE_UNIT_WIDTH));
                         mazeMap.add(tempUnit);
                     }
                 }

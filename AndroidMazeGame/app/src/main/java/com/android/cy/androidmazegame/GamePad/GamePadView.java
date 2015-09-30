@@ -24,7 +24,8 @@ public class GamePadView extends View {
     private float hWidth, hHeight;
     private boolean[] keyStatus = { false, false, false, false};
 
-    private int pointerID;
+    private int pointerID = -1;
+    private Vector2D touchDown = new Vector2D();
 
     private GamePadMoveCallback moveCallback;
 
@@ -91,41 +92,50 @@ public class GamePadView extends View {
         hHeight = measuredWidth * 0.03f;
         leftPos = new Vector2D(centerPos.x - 6.5f * centerRadius, centerPos.y);
         rightPos = new Vector2D(centerPos.x + 6.5f * centerRadius, centerPos.y);
-        upPos = new Vector2D(centerPos.x, centerPos.y + 6.5f * centerRadius);
-        downPos = new Vector2D(centerPos.x, centerPos.y - 6.5f * centerRadius);
+        upPos = new Vector2D(centerPos.x, centerPos.y - 6.5f * centerRadius);
+        downPos = new Vector2D(centerPos.x, centerPos.y + 6.5f * centerRadius);
 
         Log.v("GamePadView", (leftPos.x - hWidth) + " " + leftPos.y);
     }
 
     @Override
     public boolean onTouchEvent(MotionEvent e) {
-
-        // get pointer index from the event object
-        int pointerIndex = e.getActionIndex();
-
-        // get pointer ID
-        int pointerID = e.getPointerId(pointerIndex);
-
-        switch (e.getAction()) {
+        int pIndex, pID;
+        pIndex = e.getActionIndex();
+        pID = e.getPointerId(pIndex);
+        switch (e.getActionMasked()) {
+            case MotionEvent.ACTION_DOWN:
+            case MotionEvent.ACTION_POINTER_DOWN:
+                if (processKeyDown(e.getX(pID), e.getY(pID))) {
+                    Log.v("GamePadView", "In" + pID);
+                    pointerID = pID;
+                } else {
+                    touchDown.setXY(e.getX(pID), e.getY(pID));
+                    Log.v("GamePadView", "Out" + pID);
+                }
+                break;
             case MotionEvent.ACTION_MOVE: {
-                if (isMoving)
-                    processMotion(e.getX(), e.getY());
-                return false;
+                for (int i = 0; i< e.getPointerCount(); i++) {
+                    if (pointerID != i) {
+                        processMotion(e.getX(i), e.getY(i));
+                        touchDown.setXY(e.getX(i), e.getY(i));
+                    }
+                }
+                break;
             }
-            case MotionEvent.ACTION_DOWN: {
-                processKeyDown(e.getX(), e.getY());
-                return false;
-            }
-            case MotionEvent.ACTION_CANCEL:
             case MotionEvent.ACTION_UP:
-                return false;
+            case MotionEvent.ACTION_POINTER_UP:
+                if (pID == pointerID) {
+                    pointerID = -1;
+                    processKeyUp();
+                }
+                break;
         }
-        return false;
+        return true;
     }
 
     private void processMotion(float x, float y) {
-
-     //  invalidate();
+        moveCallback.onMove(x - touchDown.x, y - touchDown.y);
     }
 
     private boolean processKeyDown(float x, float y) {
@@ -144,22 +154,22 @@ public class GamePadView extends View {
             key = 3;
         }
 
-        for (int i = 0; i< keyStatus.length; i++) {
-            if (i == key) {
-                keyStatus[i] = true;
-            } else {
-                keyStatus[i] = false;
-            }
-        }
-
-        invalidate();
-
         if (key != -1) {
+            keyStatus[key] = true;
             moveCharacter(key);
+            invalidate();
             return true;
         } else {
+            invalidate();
             return false;
         }
+    }
+
+    private void processKeyUp() {
+        for (int i = 0; i< keyStatus.length; i++) {
+            keyStatus[i] = false;
+        }
+        invalidate();
     }
 
     private void moveCharacter(int direction) {

@@ -3,7 +3,6 @@ package com.android.cy.androidmazegame;
 import android.content.Context;
 import android.opengl.GLSurfaceView;
 import android.util.AttributeSet;
-import android.view.MotionEvent;
 
 /**
  * Created by Administrator on 2015/9/19.
@@ -39,27 +38,12 @@ public class GameSurfaceView extends GLSurfaceView {
         setRenderer(mGameRenderer);
     }
 
-    private float touchDownX, touchDownY;
 
-    @Override
-    public boolean onTouchEvent(MotionEvent e) {
-        switch (e.getAction()) {
-            case MotionEvent.ACTION_MOVE: {
-                mGameRenderer.updateCamera(e.getX() - touchDownX, e.getY() - touchDownY);
-                touchDownX = e.getX();
-                touchDownY = e.getY();
-            }
-            case MotionEvent.ACTION_DOWN: {
-                touchDownX = e.getX();
-                touchDownY = e.getY();
-            }
-        }
-        return true;
-    }
-
-    public void onCameraUpdate(float x, float y) {
+    public void onCameraTargetUpdate(float x, float y) {
         mGameRenderer.updateCamera(x, y);
     }
 
-    public void onCharacterPosUpdate(int direction) { mGameRenderer.updateCharacterPos(direction);}
+    public void onCharacterPosUpdate(int direction) {
+        mGameRenderer.updateCharacterPos(direction);
+    }
 }

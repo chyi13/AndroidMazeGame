@@ -12,20 +12,26 @@ public class CharacterController {
     private Vector3D targetPos;
     private Vector3D upDirection;
 
+    private Vector3D moveDirection;
+
     /**
+     *
      * Store the view matrix. This can be thought of as our camera. This matrix transforms world space to eye space;
      * it positions things relative to our eye.
      */
     private final float[] mViewMatrix = new float[16];
 
     public CharacterController() {
-        eyePos = new Vector3D(-2.5f, 5.0f, -2.5f);
-        targetPos = new Vector3D(-2.5f, 5.0f, -5.0f);
+        eyePos = new Vector3D(-2.5f, 2.0f, -2.5f);
+        targetPos = new Vector3D(-2.5f, 2.0f, -5.0f);
         upDirection = new Vector3D(0.0f, 1.0f, 0.0f);
 
         Matrix.setLookAtM(mViewMatrix, 0, eyePos.x, eyePos.y, eyePos.z,
-                targetPos.x, targetPos.y, targetPos.z,
+                eyePos.x + targetPos.x, eyePos.y + targetPos.y, eyePos.z + targetPos.z,
                 upDirection.x, upDirection.y, upDirection.z);
+
+        // move direction vector
+        moveDirection = new Vector3D();
     }
 
     public float[] getViewMatrix() {
@@ -49,23 +55,27 @@ public class CharacterController {
         switch (direction) {
             // left
             case 0:
-                Vector3D.add(eyePos, eyePos, new Vector3D(-1.f, 0.0f, 0.0f));
+        //        Vector3D.add(eyePos, eyePos, new Vector3D(-1.f, 0.0f, 0.0f));
+                Vector3D.add(eyePos, eyePos, new Vector3D(targetPos.z, 0.0f, -targetPos.x));
                 break;
             // right
             case 1:
-                Vector3D.add(eyePos, eyePos, new Vector3D(1.f, 0.0f, 0.0f));
+        //        Vector3D.add(eyePos, eyePos, new Vector3D(1.f, 0.0f, 0.0f));
+                Vector3D.add(eyePos, eyePos, new Vector3D(-targetPos.z, 0.0f, targetPos.x));
                 break;
             // up
             case 2:
-                Vector3D.add(eyePos, eyePos, new Vector3D(0.f, 0.0f, 1.0f));
+      //          Vector3D.add(eyePos, eyePos, new Vector3D(0.f, 0.0f, 1.0f));
+                Vector3D.add(eyePos, eyePos, new Vector3D(targetPos.x, 0.0f, targetPos.z));
                 break;
             // down
             case 3:
-                Vector3D.add(eyePos, eyePos, new Vector3D(0.f, 0.0f, -1.0f));
+                Vector3D.add(eyePos, eyePos, new Vector3D(-targetPos.x, 0.0f, -targetPos.z));
                 break;
             default:
                 break;
         }
+        updateViewMatrix();
     }
 
     private void updateViewMatrix() {

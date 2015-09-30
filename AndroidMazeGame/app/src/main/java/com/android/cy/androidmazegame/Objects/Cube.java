@@ -25,52 +25,52 @@ public class Cube extends BasicObject {
                     // usually represent the backside of an object and aren't visible anyways.
 
                     // Front face
-                    -1.0f, 1.0f, 1.0f,
-                    -1.0f, -1.0f, 1.0f,
-                    1.0f, 1.0f, 1.0f,
-                    -1.0f, -1.0f, 1.0f,
-                    1.0f, -1.0f, 1.0f,
-                    1.0f, 1.0f, 1.0f,
+                    -0.5f, 0.5f, 0.5f,
+                    -0.5f, -0.5f, 0.5f,
+                    0.5f, 0.5f, 0.5f,
+                    -0.5f, -0.5f, 0.5f,
+                    0.5f, -0.5f, 0.5f,
+                    0.5f, 0.5f, 0.5f,
 
                     // Right face
-                    1.0f, 1.0f, 1.0f,
-                    1.0f, -1.0f, 1.0f,
-                    1.0f, 1.0f, -1.0f,
-                    1.0f, -1.0f, 1.0f,
-                    1.0f, -1.0f, -1.0f,
-                    1.0f, 1.0f, -1.0f,
+                    0.5f, 0.5f, 0.5f,
+                    0.5f, -0.5f, 0.5f,
+                    0.5f, 0.5f, -0.5f,
+                    0.5f, -0.5f, 0.5f,
+                    0.5f, -0.5f, -0.5f,
+                    0.5f, 0.5f, -0.5f,
 
                     // Back face
-                    1.0f, 1.0f, -1.0f,
-                    1.0f, -1.0f, -1.0f,
-                    -1.0f, 1.0f, -1.0f,
-                    1.0f, -1.0f, -1.0f,
-                    -1.0f, -1.0f, -1.0f,
-                    -1.0f, 1.0f, -1.0f,
+                    0.5f, 0.5f, -0.5f,
+                    0.5f, -0.5f, -0.5f,
+                    -0.5f, 0.5f, -0.5f,
+                    0.5f, -0.5f, -0.5f,
+                    -0.5f, -0.5f, -0.5f,
+                    -0.5f, 0.5f, -0.5f,
 
                     // Left face
-                    -1.0f, 1.0f, -1.0f,
-                    -1.0f, -1.0f, -1.0f,
-                    -1.0f, 1.0f, 1.0f,
-                    -1.0f, -1.0f, -1.0f,
-                    -1.0f, -1.0f, 1.0f,
-                    -1.0f, 1.0f, 1.0f,
+                    -0.5f, 0.5f, -0.5f,
+                    -0.5f, -0.5f, -0.5f,
+                    -0.5f, 0.5f, 0.5f,
+                    -0.5f, -0.5f, -0.5f,
+                    -0.5f, -0.5f, 0.5f,
+                    -0.5f, 0.5f, 0.5f,
 
                     // Top face
-                    -1.0f, 1.0f, -1.0f,
-                    -1.0f, 1.0f, 1.0f,
-                    1.0f, 1.0f, -1.0f,
-                    -1.0f, 1.0f, 1.0f,
-                    1.0f, 1.0f, 1.0f,
-                    1.0f, 1.0f, -1.0f,
+                    -0.5f, 0.5f, -0.5f,
+                    -0.5f, 0.5f, 0.5f,
+                    0.5f, 0.5f, -0.5f,
+                    -0.5f, 0.5f, 0.5f,
+                    0.5f, 0.5f, 0.5f,
+                    0.5f, 0.5f, -0.5f,
 
                     // Bottom face
-                    1.0f, -1.0f, -1.0f,
-                    1.0f, -1.0f, 1.0f,
-                    -1.0f, -1.0f, -1.0f,
-                    1.0f, -1.0f, 1.0f,
-                    -1.0f, -1.0f, 1.0f,
-                    -1.0f, -1.0f, -1.0f,
+                    0.5f, -0.5f, -0.5f,
+                    0.5f, -0.5f, 0.5f,
+                    -0.5f, -0.5f, -0.5f,
+                    0.5f, -0.5f, 0.5f,
+                    -0.5f, -0.5f, 0.5f,
+                    -0.5f, -0.5f, -0.5f,
             };
 
     // R, G, B, A
@@ -307,7 +307,7 @@ public class Cube extends BasicObject {
 
         // scale
 //        Matrix.setIdentityM(mModelMatrix, 0);
-        Matrix.scaleM(mModelMatrix, 0, MazeMap.MAZE_UNIT_WIDTH/2, MazeMap.MAZE_UNIT_WIDTH/2, MazeMap.MAZE_UNIT_WIDTH/2);
+        Matrix.scaleM(mModelMatrix, 0, MazeMap.MAZE_UNIT_WIDTH, MazeMap.MAZE_UNIT_WIDTH, MazeMap.MAZE_UNIT_WIDTH);
 
         // This multiplies the view matrix by the model matrix, and stores the result in the MVP matrix
         // (which currently contains model * view).

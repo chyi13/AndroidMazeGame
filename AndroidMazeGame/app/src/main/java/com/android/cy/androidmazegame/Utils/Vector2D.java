@@ -32,4 +32,9 @@ public class Vector2D {
         } else
             return false;
     }
+
+    public void setXY(float x, float y) {
+        this.x = x;
+        this.y = y;
+    }
 }
