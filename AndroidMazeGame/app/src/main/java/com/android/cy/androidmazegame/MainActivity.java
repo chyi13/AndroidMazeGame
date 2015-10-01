@@ -37,8 +37,11 @@ public class MainActivity extends Activity {
 
             @Override
             public void onKeyDown(int direction) {
-                mGameView.onCharacterPosUpdate(direction);
+                mGameView.onCharacterKeyDown(direction);
             }
+
+            @Override
+            public void onKeyUp() { mGameView.onCharacterKeyUp(); }
         });
 
         RelativeLayout.LayoutParams lButtonParams = new RelativeLayout.LayoutParams( RelativeLayout.LayoutParams.WRAP_CONTENT , RelativeLayout.LayoutParams.WRAP_CONTENT );

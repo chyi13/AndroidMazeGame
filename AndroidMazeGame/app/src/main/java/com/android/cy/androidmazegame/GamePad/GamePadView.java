@@ -126,6 +126,7 @@ public class GamePadView extends View {
             case MotionEvent.ACTION_UP:
             case MotionEvent.ACTION_POINTER_UP:
                 if (pID == pointerID) {
+                    Log.v("GamePadView", "up");
                     pointerID = -1;
                     processKeyUp();
                 }
@@ -169,6 +170,8 @@ public class GamePadView extends View {
         for (int i = 0; i< keyStatus.length; i++) {
             keyStatus[i] = false;
         }
+
+        moveCallback.onKeyUp();
         invalidate();
     }
 

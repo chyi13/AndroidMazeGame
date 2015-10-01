@@ -1,6 +1,7 @@
 package com.android.cy.androidmazegame.Scene;
 
 import android.opengl.Matrix;
+import android.util.Log;
 
 import com.android.cy.androidmazegame.Utils.Vector3D;
 
@@ -14,6 +15,8 @@ public class CharacterController {
 
     private Vector3D moveDirection;
 
+    private Vector3D moveDestination;
+
     /**
      *
      * Store the view matrix. This can be thought of as our camera. This matrix transforms world space to eye space;
@@ -25,6 +28,9 @@ public class CharacterController {
         eyePos = new Vector3D(-2.5f, 2.0f, -2.5f);
         targetPos = new Vector3D(-2.5f, 2.0f, -5.0f);
         upDirection = new Vector3D(0.0f, 1.0f, 0.0f);
+
+        moveDestination = new Vector3D(eyePos);
+        moveDirection = new Vector3D();
 
         Matrix.setLookAtM(mViewMatrix, 0, eyePos.x, eyePos.y, eyePos.z,
                 eyePos.x + targetPos.x, eyePos.y + targetPos.y, eyePos.z + targetPos.z,
@@ -51,31 +57,41 @@ public class CharacterController {
         updateViewMatrix();
     }
 
-    public void move(int direction) {
+    public void update(float delta) {
+        // if moving
+        if (!moveDirection.checkEmpty()) {
+            Log.v("CharacterController", "update");
+            Vector3D.add(eyePos, eyePos, Vector3D.multiplyVF(moveDirection, delta));
+            updateViewMatrix();
+        }
+    }
+
+    public void onKeyDown(int direction) {
         switch (direction) {
             // left
             case 0:
-        //        Vector3D.add(eyePos, eyePos, new Vector3D(-1.f, 0.0f, 0.0f));
-                Vector3D.add(eyePos, eyePos, new Vector3D(targetPos.z, 0.0f, -targetPos.x));
+                moveDirection = new Vector3D(targetPos.z, 0.0f, -targetPos.x).normalize();
                 break;
             // right
             case 1:
-        //        Vector3D.add(eyePos, eyePos, new Vector3D(1.f, 0.0f, 0.0f));
-                Vector3D.add(eyePos, eyePos, new Vector3D(-targetPos.z, 0.0f, targetPos.x));
+                moveDirection = new Vector3D(-targetPos.z, 0.0f, targetPos.x).normalize();
                 break;
             // up
             case 2:
-      //          Vector3D.add(eyePos, eyePos, new Vector3D(0.f, 0.0f, 1.0f));
-                Vector3D.add(eyePos, eyePos, new Vector3D(targetPos.x, 0.0f, targetPos.z));
+                moveDirection = new Vector3D(targetPos.x, 0.0f, targetPos.z).normalize();
                 break;
             // down
             case 3:
-                Vector3D.add(eyePos, eyePos, new Vector3D(-targetPos.x, 0.0f, -targetPos.z));
+                moveDirection = new Vector3D(-targetPos.x, 0.0f, -targetPos.z).normalize();
                 break;
             default:
                 break;
         }
         updateViewMatrix();
+    }
+
+    public void onKeyUp() {
+        moveDirection.setXYZ(0, 0, 0);
     }
 
     private void updateViewMatrix() {

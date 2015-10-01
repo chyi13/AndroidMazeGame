@@ -131,12 +131,16 @@ public class GameRenderer implements GLSurfaceView.Renderer{
     @Override
     public void onDrawFrame(GL10 gl) {
         float elapsedTime = SystemClock.elapsedRealtime() - startTime;
-        if (elapsedTime < 10f) {
-            return;
+        if (elapsedTime < 8.3f) {
+       //     return;
         }
         startTime = SystemClock.elapsedRealtime();
 
         GLES20.glClear(GLES20.GL_DEPTH_BUFFER_BIT | GLES20.GL_COLOR_BUFFER_BIT);
+
+        // Update camera position
+        characterController.update(1/60f);
+        mViewMatrix = characterController.getViewMatrix();
 
         // Calculate position of the light. Rotate and then push into the distance.
         Matrix.setIdentityM(mLightModelMatrix, 0);
@@ -166,9 +170,13 @@ public class GameRenderer implements GLSurfaceView.Renderer{
         mViewMatrix = characterController.getViewMatrix();
     }
 
-    public void updateCharacterPos(int direction) {
-        characterController.move(direction);
+    public void onKeyDown(int direction) {
+        characterController.onKeyDown(direction);
         mViewMatrix = characterController.getViewMatrix();
+    }
+
+    public void onKeyUp() {
+        characterController.onKeyUp();
     }
 
     public static int loadShader(int type, String shaderCode){
