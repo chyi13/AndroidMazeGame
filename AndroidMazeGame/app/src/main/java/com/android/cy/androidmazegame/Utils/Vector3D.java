@@ -29,7 +29,7 @@ public class Vector3D {
     }
 
     public String toString() {
-        return "" + x + " " + y +" " + z;
+        return "x=" + x + ", y=" + y +", z=" + z;
     }
 
     public void setXYZ(float x, float y, float z) {
@@ -43,7 +43,7 @@ public class Vector3D {
         return (float)Math.sqrt(x * x + y * y + z * z);
     }
 
-    public boolean checkEmpty() {
+    public boolean checkZero() {
         return (this.x == 0 && this.y == 0 && this.z == 0);
     }
 

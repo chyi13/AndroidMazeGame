@@ -1,7 +1,6 @@
 package com.android.cy.androidmazegame.Scene;
 
 import android.content.Context;
-import android.util.Log;
 
 import com.android.cy.androidmazegame.Objects.Cube;
 import com.android.cy.androidmazegame.Utils.Vector3D;
@@ -19,6 +18,14 @@ public class MazeMap {
 
     public final static float MAZE_UNIT_WIDTH = 10.f;
     public final static float MAZE_UNIT_HEIGHT = 10.0f;
+
+    private final static int MAZE_WIDTH = 11;
+    private final static int MAZE_HEIGHT = 11;
+
+    private static char[][] rawMap = new char[MAZE_WIDTH][MAZE_HEIGHT];
+
+    private final static float mapOffsetX = 5.5f * MAZE_UNIT_WIDTH;
+    private final static float mapOffsetY = 5.5f * MAZE_UNIT_WIDTH;
 
     private class MazeMapUnit {
         Vector3D position;
@@ -51,9 +58,9 @@ public class MazeMap {
             while ((nextLine = bufferedReader.readLine()) != null)
             {
                 for (j = 0; j< nextLine.length(); j++) {
-
-                    if (nextLine.charAt(j) == '#') {
-                        Log.v("MazeMap", j * MAZE_UNIT_WIDTH + " " + i * MAZE_UNIT_WIDTH);
+                    char tempChar = nextLine.charAt(j);
+                    rawMap[i][j] = tempChar;
+                    if (tempChar == '#') {
                         MazeMapUnit tempUnit = new MazeMapUnit(new Vector3D( (j- 5.5f) * MAZE_UNIT_WIDTH, 0.0f, (i - 5.5f) * MAZE_UNIT_WIDTH));
                         mazeMap.add(tempUnit);
                     }
@@ -78,5 +85,11 @@ public class MazeMap {
 
     public Vector<MazeMapUnit> getMazeMap() {
         return mazeMap;
+    }
+
+    public static boolean checkForCollision(float x, float y) {
+        int tUnitX = (int) ((x + 60)/ MAZE_UNIT_WIDTH);
+        int tUnitY = (int) ((y + 60)/ MAZE_UNIT_WIDTH);
+        return (rawMap[tUnitY][tUnitX] == '#');
     }
 }

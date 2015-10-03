@@ -109,8 +109,8 @@ public class SceneManager {
         mazeObjects.remove(obj);
     }
 
-    public void readMazeMap() {
-
+    public boolean checkForCollision(float x, float y) {
+        return mazeMap.checkForCollision(x, y);
     }
 
     public int generateShader() {

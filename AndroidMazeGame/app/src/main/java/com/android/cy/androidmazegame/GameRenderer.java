@@ -98,7 +98,6 @@ public class GameRenderer implements GLSurfaceView.Renderer{
 
         sceneManager = new SceneManager(mContextHandle);
         sceneManager.setViewMatrix(mViewMatrix);
-        sceneManager.readMazeMap();
         sceneManager.addObject(plane);
         plane.setPosition(new Vector3D(0.0f, -5.0f, 0.0f));
         sceneManager.addObject(roof);
@@ -120,8 +119,8 @@ public class GameRenderer implements GLSurfaceView.Renderer{
         final float near = 1.0f;
         final float far = 100.0f;
 
-        Log.v("GameRenderer", width + " " + height);
-        Matrix.frustumM(mProjectionMatrix, 0, left, right, bottom, top, near, far);
+        Log.v("GameRenderer", width + " " + height + " ratio" + ratio);
+        Matrix.frustumM(mProjectionMatrix, 0, -1, 1, bottom, top, near, far);
         Matrix.orthoM(mOrthoProjectionMatrix, 0, 0f, width, 0.0f, height, 0, 50);
         // Set Projection matrix for scenemanager
         sceneManager.setProjectionMatrix(mProjectionMatrix);
@@ -165,7 +164,7 @@ public class GameRenderer implements GLSurfaceView.Renderer{
         target.x = (float) (Math.cos(theta) * Math.sin(phi));
         target.y = (float) Math.cos(-phi);
         target.z = (float) (Math.sin(theta) * Math.sin(phi));
-
+        Log.v("GameRenderer", target.toString());
         characterController.updateTarget(target);
         mViewMatrix = characterController.getViewMatrix();
     }
