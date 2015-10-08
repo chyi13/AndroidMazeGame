@@ -20,7 +20,7 @@ public class GamePadView extends View {
 
     private Paint centerPaint, keyUpPaint, keyDownPaint, bgPaint;
     private Vector2D centerPos, leftPos, rightPos, upPos, downPos;
-    private float centerRadius;
+    private float centerRadius, gamePadRadius;
     private float hWidth, hHeight;
     private boolean[] keyStatus = { false, false, false, false};
 
@@ -86,8 +86,8 @@ public class GamePadView extends View {
 
         centerPos = new Vector2D(measuredWidth * 0.18f, measuredHeight - measuredHeight * 0.2f);
 
-        Log.v("GamePadView", measuredWidth + " " + measuredHeight);
         centerRadius = measuredWidth * 0.01f;
+        gamePadRadius = 6.5f * centerRadius + hWidth;
         hWidth = measuredWidth * 0.03f;
         hHeight = measuredWidth * 0.03f;
         leftPos = new Vector2D(centerPos.x - 6.5f * centerRadius, centerPos.y);
@@ -142,21 +142,21 @@ public class GamePadView extends View {
     private boolean processKeyDown(float x, float y) {
         Vector2D tPos = new Vector2D(x, y);
         int key = -1;
-        if (Vector2D.isInRect(tPos, leftPos, hWidth, hHeight)) {
-            key = 0;
-        }
-        if (Vector2D.isInRect(tPos, rightPos, hWidth, hHeight)) {
-            key = 1;
-        }
-        if (Vector2D.isInRect(tPos, upPos, hWidth, hHeight)) {
-            key = 2;
-        }
-        if (Vector2D.isInRect(tPos, downPos, hWidth, hHeight)) {
-            key = 3;
-        }
 
-        if (key != -1) {
-            keyStatus[key] = true;
+        if (Vector2D.isInRect(tPos, centerPos, gamePadRadius, gamePadRadius)) {
+            if (Vector2D.isInRect(tPos, leftPos, hWidth, hHeight)) {
+                key = 0;
+            } else if (Vector2D.isInRect(tPos, rightPos, hWidth, hHeight)) {
+                key = 1;
+            } else if (Vector2D.isInRect(tPos, upPos, hWidth, hHeight)) {
+                key = 2;
+            } else if (Vector2D.isInRect(tPos, downPos, hWidth, hHeight)) {
+                key = 3;
+            } else {
+                key = -1;
+            }
+            if (key != -1)
+                keyStatus[key] = true;
             moveCharacter(key);
             invalidate();
             return true;

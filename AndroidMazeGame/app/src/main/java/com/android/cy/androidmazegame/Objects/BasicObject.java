@@ -26,7 +26,7 @@ public abstract class BasicObject {
     public FloatBuffer colorBuffer;
     public FloatBuffer textureBuffer;
 
-    public int programHandle;
+    public int mProgramHandle;
 
     public Context contextHandle;
 

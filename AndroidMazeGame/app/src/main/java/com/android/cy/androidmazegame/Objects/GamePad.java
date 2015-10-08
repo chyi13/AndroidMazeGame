@@ -27,17 +27,17 @@ public class GamePad extends BasicObject{
 
     @Override
     public void setShaderHandles(int ph) {
-        programHandle = ph;
+        mProgramHandle = ph;
 
-        mPositionHandle = GLES20.glGetAttribLocation(programHandle, "a_Position");
-        mMVPMatrixHandle = GLES20.glGetUniformLocation(programHandle, "u_MVPMatrix");
-        mTextureDataHandle = GLES20.glGetAttribLocation(programHandle, "a_TexCoordinate");
-        mPointThickness = GLES20.glGetUniformLocation(programHandle, "u_Thickness");
+        mPositionHandle = GLES20.glGetAttribLocation(mProgramHandle, "a_Position");
+        mMVPMatrixHandle = GLES20.glGetUniformLocation(mProgramHandle, "u_MVPMatrix");
+        mTextureDataHandle = GLES20.glGetAttribLocation(mProgramHandle, "a_TexCoordinate");
+        mPointThickness = GLES20.glGetUniformLocation(mProgramHandle, "u_Thickness");
     }
 
     @Override
     public void draw(float[] mViewMatrix, float[] mProjectionMatrix, float[] mModelMatrix, float[] mLightPosInEyeSpace) {
-        GLES20.glUseProgram(programHandle);
+        GLES20.glUseProgram(mProgramHandle);
 
         // Enable generic vertex attribute array
         GLES20.glEnableVertexAttribArray(mPositionHandle);
@@ -74,7 +74,7 @@ public class GamePad extends BasicObject{
 
     @Override
     public void draw(float[] projectionMatrix) {
-        GLES20.glUseProgram(programHandle);
+        GLES20.glUseProgram(mProgramHandle);
 
         // Enable generic vertex attribute array
         GLES20.glEnableVertexAttribArray(mPositionHandle);

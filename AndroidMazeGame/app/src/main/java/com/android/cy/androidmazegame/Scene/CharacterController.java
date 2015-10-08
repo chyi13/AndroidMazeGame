@@ -19,7 +19,8 @@ public class CharacterController {
 
     private final static float CHAR_SPEED = 10.f;
 
-    public enum DIRECTION {IDLE(-1), LEFT(0), RIGHT(1), FORWARD(2), BACKWARD(3);
+    public enum DIRECTION {
+        IDLE(-1), LEFT(0), RIGHT(1), FORWARD(2), BACKWARD(3);
         private int value;
         private DIRECTION(int i) {
             value = i;

@@ -7,6 +7,7 @@ import android.opengl.Matrix;
 import com.android.cy.androidmazegame.GameRenderer;
 import com.android.cy.androidmazegame.Objects.BasicObject;
 import com.android.cy.androidmazegame.Objects.GamePad;
+import com.android.cy.androidmazegame.Objects.SkyBox;
 import com.android.cy.androidmazegame.R;
 
 import java.util.Vector;
@@ -19,6 +20,7 @@ public class SceneManager {
     private Context mContextHandle;
     private int mProgramHandle;
     private int mGamePadProgramHandle;
+    private int mSkyboxProgramHandle;
 
     private MazeMap mazeMap;
     private Vector<BasicObject> mazeObjects;
@@ -33,6 +35,8 @@ public class SceneManager {
     private float[] mGamePadViewMatrix = new float[16];
     private float[] mGamePadProjectionMatrix = new float[16];
 
+    private SkyBox skyBox;
+
     public SceneManager(Context context) {
         mContextHandle = context;
 
@@ -42,6 +46,7 @@ public class SceneManager {
         // shader
         mProgramHandle = generateShader();
         mGamePadProgramHandle = generateGamePadShader();
+        mSkyboxProgramHandle = generateSkyboxShader();
 
         // scene map
         mazeMap = new MazeMap(this);
@@ -50,6 +55,11 @@ public class SceneManager {
         // game pad
         gamePad = new GamePad(mContextHandle);
         gamePad.setShaderHandles(mGamePadProgramHandle);
+
+        // skybox
+        skyBox = new SkyBox(mContextHandle);
+        skyBox.setShaderHandle(mSkyboxProgramHandle);
+
     }
 
     public void setViewMatrix(float[] viewMatrix) {
@@ -95,6 +105,11 @@ public class SceneManager {
         // Render game pad
         GLES20.glUseProgram(mGamePadProgramHandle);
         gamePad.draw(mGamePadProjectionMatrix);
+
+        // Render skybox
+        Matrix.setIdentityM(mModelMatrix, 0);
+        GLES20.glUseProgram(mSkyboxProgramHandle);
+        skyBox.draw(mViewMatrix, mProjectionMatrix, mModelMatrix);
     }
 
     public void addObject(BasicObject obj) {
@@ -149,6 +164,25 @@ public class SceneManager {
 
         return programHandle;
     }
+    public int generateSkyboxShader() {
+        //
+        int vertexShader = GameRenderer.loadShader(GLES20.GL_VERTEX_SHADER, RawResourceReader.readTextFileFromRawResource(mContextHandle, R.raw.skybox_vertex_shader));
+        int fragmentShader = GameRenderer.loadShader(GLES20.GL_FRAGMENT_SHADER, RawResourceReader.readTextFileFromRawResource(mContextHandle, R.raw.fragment_shader));
+
+        int programHandle = GLES20.glCreateProgram();             // create empty OpenGL Program
+        if (programHandle != 0) {
+            GLES20.glAttachShader(programHandle, vertexShader);   // add the vertex shader to program
+            GLES20.glAttachShader(programHandle, fragmentShader); // add the fragment shader to program
+
+            GLES20.glBindAttribLocation(programHandle, 0, "a_Position");
+            GLES20.glBindAttribLocation(programHandle, 1, "a_TexCoordinate");
+        }
+        GLES20.glLinkProgram(programHandle);                  // create OpenGL program executables
+
+        return programHandle;
+    }
+
+
 
     // get context
     public Context getContext() { return mContextHandle; }

@@ -90,6 +90,11 @@ public class MazeMap {
     public static boolean checkForCollision(float x, float y) {
         int tUnitX = (int) ((x + 60)/ MAZE_UNIT_WIDTH);
         int tUnitY = (int) ((y + 60)/ MAZE_UNIT_WIDTH);
-        return (rawMap[tUnitY][tUnitX] == '#');
+
+        // out of the maze map
+        if (tUnitX < 0 || tUnitY < 0)
+            return false;
+        else
+            return (rawMap[tUnitY][tUnitX] == '#');
     }
 }

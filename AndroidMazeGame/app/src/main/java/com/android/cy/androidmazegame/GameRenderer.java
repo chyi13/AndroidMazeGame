@@ -93,8 +93,8 @@ public class GameRenderer implements GLSurfaceView.Renderer{
         mViewMatrix = characterController.getViewMatrix();
 
         object = new Cube(mContextHandle);
-        plane = new Plane(mContextHandle, 110.f, 110.f);
-        roof = new Plane(mContextHandle, 110.f, 110.f);
+        plane = new Plane(mContextHandle, 60.f, 60.f);
+        roof = new Plane(mContextHandle, 60.f, 60.f);
 
         sceneManager = new SceneManager(mContextHandle);
         sceneManager.setViewMatrix(mViewMatrix);
@@ -117,7 +117,7 @@ public class GameRenderer implements GLSurfaceView.Renderer{
         final float bottom = -1.0f;
         final float top = 1.0f;
         final float near = 1.0f;
-        final float far = 100.0f;
+        final float far = 866.0f;
 
         Log.v("GameRenderer", width + " " + height + " ratio" + ratio);
         Matrix.frustumM(mProjectionMatrix, 0, -1, 1, bottom, top, near, far);

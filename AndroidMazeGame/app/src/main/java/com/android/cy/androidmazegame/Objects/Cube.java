@@ -256,18 +256,18 @@ public class Cube extends BasicObject {
 
     @Override
     public void setShaderHandles(int ph) {
-        programHandle = ph;
+        mProgramHandle = ph;
 
         // Set program handles. These will later be used to pass in values to the program.
         // Set program handles for cube drawing.
-        mMVPMatrixHandle = GLES20.glGetUniformLocation(programHandle, "u_MVPMatrix");
-        mMVMatrixHandle = GLES20.glGetUniformLocation(programHandle, "u_MVMatrix");
-        mLightPosHandle = GLES20.glGetUniformLocation(programHandle, "u_LightPos");
-        mTextureUniformHandle = GLES20.glGetUniformLocation(programHandle, "u_Texture");
-        mPositionHandle = GLES20.glGetAttribLocation(programHandle, "a_Position");
-        mColorHandle = GLES20.glGetAttribLocation(programHandle, "a_Color");
-        mNormalHandle = GLES20.glGetAttribLocation(programHandle, "a_Normal");
-        mTextureCoordinateHandle = GLES20.glGetAttribLocation(programHandle, "a_TexCoordinate");
+        mMVPMatrixHandle = GLES20.glGetUniformLocation(mProgramHandle, "u_MVPMatrix");
+        mMVMatrixHandle = GLES20.glGetUniformLocation(mProgramHandle, "u_MVMatrix");
+        mLightPosHandle = GLES20.glGetUniformLocation(mProgramHandle, "u_LightPos");
+        mTextureUniformHandle = GLES20.glGetUniformLocation(mProgramHandle, "u_Texture");
+        mPositionHandle = GLES20.glGetAttribLocation(mProgramHandle, "a_Position");
+        mColorHandle = GLES20.glGetAttribLocation(mProgramHandle, "a_Color");
+        mNormalHandle = GLES20.glGetAttribLocation(mProgramHandle, "a_Normal");
+        mTextureCoordinateHandle = GLES20.glGetAttribLocation(mProgramHandle, "a_TexCoordinate");
     }
 
     @Override

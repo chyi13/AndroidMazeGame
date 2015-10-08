@@ -93,12 +93,12 @@ public class Triangle extends BasicObject{
     @Override
     public void setShaderHandles(int ph) {
 
-        programHandle = ph;
+        mProgramHandle = ph;
 
         // Set program handles. These will later be used to pass in values to the program.
-        mMVPMatrixHandle = GLES20.glGetUniformLocation(programHandle, "u_MVPMatrix");
-        mPositionHandle = GLES20.glGetAttribLocation(programHandle, "a_Position");
-        mColorHandle = GLES20.glGetAttribLocation(programHandle, "a_Color");
+        mMVPMatrixHandle = GLES20.glGetUniformLocation(mProgramHandle, "u_MVPMatrix");
+        mPositionHandle = GLES20.glGetAttribLocation(mProgramHandle, "a_Position");
+        mColorHandle = GLES20.glGetAttribLocation(mProgramHandle, "a_Color");
     }
 
     @Override
