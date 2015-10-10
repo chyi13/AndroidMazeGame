@@ -1,4 +1,4 @@
-package com.android.cy.androidmazegame;
+package com.android.cy.androidmazegame.GameView;
 
 import android.content.Context;
 import android.opengl.GLES20;
@@ -69,7 +69,12 @@ public class GameRenderer implements GLSurfaceView.Renderer{
     /** Render time */
     private float startTime = 0.f;
 
-    public GameRenderer(Context context) { mContextHandle = context;}
+    private GameSurfaceView mGameSurfaceView;
+    private int mGameState = -1;
+    private final static int GAME_START = 0;
+
+
+    public GameRenderer(Context context, GameSurfaceView g) { mContextHandle = context; mGameSurfaceView = g;}
 
     @Override
     public void onSurfaceCreated(GL10 gl, EGLConfig config) {
@@ -88,20 +93,19 @@ public class GameRenderer implements GLSurfaceView.Renderer{
         // Front face
         GLES20.glFrontFace(GLES20.GL_CCW);
 
-        // character controller
-        characterController = new CharacterController();
-        mViewMatrix = characterController.getViewMatrix();
-
+        // Create scene
         object = new Cube(mContextHandle);
         plane = new Plane(mContextHandle, 60.f, 60.f);
         roof = new Plane(mContextHandle, 60.f, 60.f);
 
         sceneManager = new SceneManager(mContextHandle);
-        sceneManager.setViewMatrix(mViewMatrix);
         sceneManager.addObject(plane);
         plane.setPosition(new Vector3D(0.0f, -5.0f, 0.0f));
         sceneManager.addObject(roof);
         roof.setPosition(new Vector3D(0.0f, 5.0f, 0.0f));
+
+        // Create character controller
+        characterController = new CharacterController(sceneManager);
     }
 
     @Override
@@ -129,9 +133,15 @@ public class GameRenderer implements GLSurfaceView.Renderer{
 
     @Override
     public void onDrawFrame(GL10 gl) {
+        // Game state: START
+        if (mGameState != GAME_START) {
+            mGameState = GAME_START;
+            mGameSurfaceView.gameStart();
+        }
+
         float elapsedTime = SystemClock.elapsedRealtime() - startTime;
         if (elapsedTime < 8.3f) {
-       //     return;
+            //     return;
         }
         startTime = SystemClock.elapsedRealtime();
 
@@ -164,7 +174,7 @@ public class GameRenderer implements GLSurfaceView.Renderer{
         target.x = (float) (Math.cos(theta) * Math.sin(phi));
         target.y = (float) Math.cos(-phi);
         target.z = (float) (Math.sin(theta) * Math.sin(phi));
-        Log.v("GameRenderer", target.toString());
+
         characterController.updateTarget(target);
         mViewMatrix = characterController.getViewMatrix();
     }

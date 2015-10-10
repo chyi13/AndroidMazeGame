@@ -1,6 +1,7 @@
 package com.android.cy.androidmazegame.Scene;
 
 import android.content.Context;
+import android.util.Log;
 
 import com.android.cy.androidmazegame.Objects.Cube;
 import com.android.cy.androidmazegame.Utils.Vector3D;
@@ -27,12 +28,18 @@ public class MazeMap {
     private final static float mapOffsetX = 5.5f * MAZE_UNIT_WIDTH;
     private final static float mapOffsetY = 5.5f * MAZE_UNIT_WIDTH;
 
+    // map unit
     private class MazeMapUnit {
-        Vector3D position;
+        public Vector3D position;
         public MazeMapUnit(Vector3D pos) {
             position = pos;
         }
+        public String toString() { return position.toString();}
     }
+
+    // game start and end position.
+    private Vector3D startPos = new Vector3D();
+    private Vector3D endPos = new Vector3D();
 
     private Vector<MazeMapUnit> mazeMap;
 
@@ -60,9 +67,14 @@ public class MazeMap {
                 for (j = 0; j< nextLine.length(); j++) {
                     char tempChar = nextLine.charAt(j);
                     rawMap[i][j] = tempChar;
+                    // maze map
                     if (tempChar == '#') {
                         MazeMapUnit tempUnit = new MazeMapUnit(new Vector3D( (j- 5.5f) * MAZE_UNIT_WIDTH, 0.0f, (i - 5.5f) * MAZE_UNIT_WIDTH));
                         mazeMap.add(tempUnit);
+                    } else if (tempChar == '+') { // maze start
+                        startPos.setXYZ((j- 5.5f) * MAZE_UNIT_WIDTH, 0.0f, (i - 5.5f) * MAZE_UNIT_WIDTH);
+                    } else if (tempChar == '-') { // maze end
+                        endPos.setXYZ((j- 5.5f) * MAZE_UNIT_WIDTH, 0.0f, (i - 5.5f) * MAZE_UNIT_WIDTH);
                     }
                 }
                 i++;
@@ -76,6 +88,7 @@ public class MazeMap {
         for (MazeMapUnit unit: mazeMap) {
         //    Wall tempWall = new Wall(sceneManager.getContext(), MAZE_UNIT_WIDTH, MAZE_UNIT_HEIGHT);
             Cube tempCube = new Cube(sceneManager.getContext());
+            Log.v("MazeMap", unit.toString());
             tempCube.setPosition(unit.position);
             sceneManager.addObject(tempCube);
         }
@@ -86,6 +99,9 @@ public class MazeMap {
     public Vector<MazeMapUnit> getMazeMap() {
         return mazeMap;
     }
+
+    public Vector3D getStartPos() { return startPos; }
+    public Vector3D getEndPos() { return endPos; }
 
     public static boolean checkForCollision(float x, float y) {
         int tUnitX = (int) ((x + 60)/ MAZE_UNIT_WIDTH);

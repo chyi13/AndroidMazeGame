@@ -1,4 +1,4 @@
-package com.android.cy.androidmazegame;
+package com.android.cy.androidmazegame.GameView;
 
 import android.content.Context;
 import android.opengl.GLSurfaceView;
@@ -14,13 +14,15 @@ public class GameSurfaceView extends GLSurfaceView {
 
     private final GameRenderer mGameRenderer;
 
+    private GameViewCallback mGameViewCallback;
+
     public GameSurfaceView(Context context) {
         super(context);
 
         // Create an OpenGL ES 2.0 context
         setEGLContextClientVersion(2);
 
-        mGameRenderer = new GameRenderer(context);
+        mGameRenderer = new GameRenderer(context, this);
 
         // Set the Renderer for drawing on the GLSurfaceView
         setRenderer(mGameRenderer);
@@ -32,7 +34,7 @@ public class GameSurfaceView extends GLSurfaceView {
         // Create an OpenGL ES 2.0 context
         setEGLContextClientVersion(2);
 
-        mGameRenderer = new GameRenderer(context);
+        mGameRenderer = new GameRenderer(context, this);
 
         // Set the Renderer for drawing on the GLSurfaceView
         setRenderer(mGameRenderer);
@@ -46,5 +48,15 @@ public class GameSurfaceView extends GLSurfaceView {
     public void onCharacterKeyDown(int direction) {
         mGameRenderer.onKeyDown(direction);
     }
-    public void onCharacterKeyUp() { mGameRenderer.onKeyUp();}
+    public void onCharacterKeyUp() {
+        mGameRenderer.onKeyUp();
+    }
+
+    public void setGameViewCallback(GameViewCallback gameViewCallback) {
+        mGameViewCallback = gameViewCallback;
+    }
+
+    public void gameStart() {
+        mGameViewCallback.onGameStart();
+    }
 }

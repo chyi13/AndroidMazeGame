@@ -4,11 +4,12 @@ import android.content.Context;
 import android.opengl.GLES20;
 import android.opengl.Matrix;
 
-import com.android.cy.androidmazegame.GameRenderer;
+import com.android.cy.androidmazegame.GameView.GameRenderer;
 import com.android.cy.androidmazegame.Objects.BasicObject;
 import com.android.cy.androidmazegame.Objects.GamePad;
 import com.android.cy.androidmazegame.Objects.SkyBox;
 import com.android.cy.androidmazegame.R;
+import com.android.cy.androidmazegame.Utils.Vector3D;
 
 import java.util.Vector;
 
@@ -127,6 +128,9 @@ public class SceneManager {
     public boolean checkForCollision(float x, float y) {
         return mazeMap.checkForCollision(x, y);
     }
+
+    public Vector3D getStartPos() { return mazeMap.getStartPos(); }
+    public Vector3D getEndPos() { return mazeMap.getEndPos(); }
 
     public int generateShader() {
         //

@@ -6,7 +6,8 @@
     android:paddingBottom="@dimen/activity_vertical_margin"
     tools:context="com.android.cy.androidmazegame.MainActivity">
 
-    <com.android.cy.androidmazegame.GameSurfaceView android:id="@+id/gl_surfaece_view"
+    <com.android.cy.androidmazegame.GameView.GameSurfaceView
+        android:id="@+id/gl_surfaece_view"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"/>
 

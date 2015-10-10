@@ -12,10 +12,10 @@ import static com.android.cy.androidmazegame.Scene.CharacterController.DIRECTION
  * Created by Administrator on 2015/9/22.
  */
 public class CharacterController {
-    private Vector3D eyePos;
-    private Vector3D targetPos;
-    private Vector3D upDirection;
-    private Vector3D moveDirection;
+    private Vector3D eyePos = new Vector3D();
+    private Vector3D targetPos = new Vector3D(1.0f, 0.0f, 0.0f);
+    private Vector3D upDirection = new Vector3D(0.0f, 1.0f, 0.0f);;
+    private Vector3D moveDirection = new Vector3D();;
 
     private final static float CHAR_SPEED = 10.f;
 
@@ -51,18 +51,20 @@ public class CharacterController {
      */
     private final float[] mViewMatrix = new float[16];
 
-    public CharacterController() {
-        eyePos = new Vector3D(-2.5f, 2.0f, -2.5f);
-        targetPos = new Vector3D(-2.5f, 2.0f, -5.0f);
-        upDirection = new Vector3D(0.0f, 1.0f, 0.0f);
+    // keep a ref to scene manager
+    private SceneManager sceneManager;
 
-        moveDirection = new Vector3D();
+    public CharacterController(SceneManager sm) {
+        sceneManager = sm;
 
+        // View matrix
+        eyePos.setXYZ(sceneManager.getStartPos().x, sceneManager.getStartPos().y, sceneManager.getStartPos().z);
         Matrix.setLookAtM(mViewMatrix, 0, eyePos.x, eyePos.y, eyePos.z,
                 eyePos.x + targetPos.x, eyePos.y + targetPos.y, eyePos.z + targetPos.z,
                 upDirection.x, upDirection.y, upDirection.z);
+        sceneManager.setViewMatrix(mViewMatrix);
 
-        // move direction vector
+        // Move direction vector
         moveDirection = new Vector3D();
     }
 
@@ -88,7 +90,7 @@ public class CharacterController {
             Vector3D destination = new Vector3D();
             Vector3D.add(destination, eyePos, Vector3D.multiplyVF(moveDirection, 3));
             Log.v("CharacterController", destination.toString());
-            if (!MazeMap.checkForCollision(destination.x, destination.z))
+            if (!sceneManager.checkForCollision(destination.x, destination.z))
                 Vector3D.add(eyePos, eyePos, Vector3D.multiplyVF(moveDirection, delta * CHAR_SPEED));
         }
         updateViewMatrix();

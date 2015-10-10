@@ -9,6 +9,7 @@ import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 
+import com.android.cy.androidmazegame.GameTimer.GameTimer;
 import com.android.cy.androidmazegame.Utils.Vector2D;
 
 /**
@@ -16,10 +17,8 @@ import com.android.cy.androidmazegame.Utils.Vector2D;
  */
 public class GamePadView extends View {
 
-    private boolean isMoving = false;
-
-    private Paint centerPaint, keyUpPaint, keyDownPaint, bgPaint;
-    private Vector2D centerPos, leftPos, rightPos, upPos, downPos;
+    private Paint centerPaint, keyUpPaint, keyDownPaint, bgPaint, textPaint;
+    private Vector2D centerPos, leftPos, rightPos, upPos, downPos, textPos;
     private float centerRadius, gamePadRadius;
     private float hWidth, hHeight;
     private boolean[] keyStatus = { false, false, false, false};
@@ -29,9 +28,19 @@ public class GamePadView extends View {
 
     private GamePadMoveCallback moveCallback;
 
+    private GameTimer mGameTimer = new GameTimer();
+
     public GamePadView(Context context) {
         super(context);
+        // Update callback, it will update game view when timer is starting
+        mGameTimer.setTimerUpdateCallback(new GameTimerUpdateCallback() {
+            @Override
+            public void onTimerUpdate() {
+                invalidate();
+            }
+        });
 
+        //
         centerPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
         centerPaint.setColor(Color.DKGRAY);
         centerPaint.setStrokeWidth(1);
@@ -53,6 +62,10 @@ public class GamePadView extends View {
         bgPaint.setColor(Color.DKGRAY);
         bgPaint.setStrokeWidth(1);
         bgPaint.setStyle(Paint.Style.FILL_AND_STROKE);
+
+        textPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+        textPaint.setColor(Color.CYAN);
+        textPaint.setStyle(Paint.Style.FILL);
     }
 
     public GamePadView(Context context, AttributeSet attrs) {
@@ -62,16 +75,18 @@ public class GamePadView extends View {
 
     protected void onDraw(Canvas canvas) {
         canvas.save();
+        // Game pad
         canvas.drawColor(Color.TRANSPARENT);
         canvas.drawCircle(centerPos.x, centerPos.y, centerRadius, centerPaint);
 
+        // Buttons
         canvas.drawRect(leftPos.x - hWidth, leftPos.y - hHeight, leftPos.x + hWidth, leftPos.y + hHeight, keyStatus[0] ? keyDownPaint : keyUpPaint);
         canvas.drawRect(rightPos.x - hWidth, rightPos.y - hHeight, rightPos.x + hWidth , rightPos.y + hHeight, keyStatus[1] ? keyDownPaint : keyUpPaint);
         canvas.drawRect(upPos.x - hWidth, upPos.y - hHeight, upPos.x + hWidth , upPos.y + hHeight, keyStatus[2] ? keyDownPaint : keyUpPaint);
         canvas.drawRect(downPos.x - hWidth, downPos.y - hHeight, downPos.x + hWidth, downPos.y + hHeight, keyStatus[3] ? keyDownPaint : keyUpPaint);
 
-//        canvas.drawCircle(centerPos.x, centerPos.y, bgRadius, bgPaint);
-
+        // Text
+        canvas.drawText(mGameTimer.getTimeString(), textPos.x, textPos.y, textPaint);
     }
 
     @Override
@@ -95,7 +110,8 @@ public class GamePadView extends View {
         upPos = new Vector2D(centerPos.x, centerPos.y - 6.5f * centerRadius);
         downPos = new Vector2D(centerPos.x, centerPos.y + 6.5f * centerRadius);
 
-        Log.v("GamePadView", (leftPos.x - hWidth) + " " + leftPos.y);
+        textPos = new Vector2D(measuredWidth * 0.03f, measuredHeight * 0.06f);
+        textPaint.setTextSize(measuredHeight * 0.06f);
     }
 
     @Override
@@ -181,5 +197,9 @@ public class GamePadView extends View {
 
     public void setMoveCallback(GamePadMoveCallback callback) {
         moveCallback = callback;
+    }
+
+    public void startTimer() {
+        mGameTimer.startTimer();
     }
 }
